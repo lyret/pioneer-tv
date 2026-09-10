@@ -9,14 +9,14 @@ window.PioneerTV = window.PioneerTV || {};
     letters: [
       ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'å'],
       ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', 'ä'],
-      [{ k: 'shift', label: '⇧', w: 1.5 }, 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', { k: 'backspace', label: '⌫', w: 1.5 }],
-      [{ k: 'layer:symbols', label: '?123', w: 2 }, { k: 'space', label: 'mellanslag', w: 6 }, { k: 'left', label: '‹', w: 1 }, { k: 'right', label: '›', w: 1 }, { k: 'done', label: 'Sök', w: 2, accent: true }],
+      [{ k: 'shift', icon: 'shift', w: 1.5 }, 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', { k: 'backspace', icon: 'backspace', w: 1.5 }],
+      [{ k: 'layer:symbols', label: '?123', w: 2 }, { k: 'space', label: 'MELLANSLAG', w: 6 }, { k: 'left', icon: 'arrowLeft', w: 1 }, { k: 'right', icon: 'arrowRight', w: 1 }, { k: 'done', label: 'SÖK', w: 2, accent: true }],
     ],
     symbols: [
       ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '='],
       ['@', '#', '&', '_', '-', '+', '(', ')', '/', "'", '"'],
-      [{ k: 'shift', label: '⇧', w: 1.5 }, '!', '?', ':', ';', '*', '%', '$', '€', '~', { k: 'backspace', label: '⌫', w: 1.5 }],
-      [{ k: 'layer:letters', label: 'ABC', w: 2 }, { k: 'space', label: 'mellanslag', w: 6 }, { k: 'left', label: '‹', w: 1 }, { k: 'right', label: '›', w: 1 }, { k: 'done', label: 'Sök', w: 2, accent: true }],
+      [{ k: 'shift', icon: 'shift', w: 1.5 }, '!', '?', ':', ';', '*', '%', '$', '€', '~', { k: 'backspace', icon: 'backspace', w: 1.5 }],
+      [{ k: 'layer:letters', label: 'ABC', w: 2 }, { k: 'space', label: 'MELLANSLAG', w: 6 }, { k: 'left', icon: 'arrowLeft', w: 1 }, { k: 'right', icon: 'arrowRight', w: 1 }, { k: 'done', label: 'SÖK', w: 2, accent: true }],
     ],
   };
 
@@ -54,7 +54,7 @@ window.PioneerTV = window.PioneerTV || {};
       if (M.nav.isTextField(active)) return this.open(active);
       const first = document.querySelector('input[type="search"], input[type="text"], textarea');
       if (first) { M.nav.focus(first); this.open(first); }
-      else M.hud && M.hud.toast('Inget textfält på sidan', '⌨');
+      else M.hud && M.hud.toast('Inget textfält på sidan', 'keyboard');
     },
 
     build() {
@@ -68,10 +68,10 @@ window.PioneerTV = window.PioneerTV || {};
         const b = document.createElement('button');
         b.type = 'button';
         b.tabIndex = -1;
-        b.className = 'pioneertv-key' + (def.accent ? ' pioneertv-key-accent' : '');
+        b.className = 'pioneertv-key pioneertv-card' + (def.accent ? ' pioneertv-key-accent' : '');
         b.style.flexGrow = String(def.w || 1);
         b.style.flexBasis = '0';
-        b.textContent = this.displayLabel(def);
+        this.setLabel(b, def);
         b.dataset.key = def.k;
         b.addEventListener('click', () => { this.row = ri; this.col = ci; this.highlight(); this.press(def); });
         return { def, el: b };
@@ -84,7 +84,7 @@ window.PioneerTV = window.PioneerTV || {};
       }
       const hint = document.createElement('div');
       hint.className = 'pioneertv-keyhint';
-      hint.textContent = 'A: skriv   B: stäng   Y: tangentbord';
+      hint.textContent = 'A skriv · B stäng · Y tangentbord';
       root.appendChild(hint);
       document.documentElement.appendChild(root);
       this.root = root;
@@ -95,8 +95,13 @@ window.PioneerTV = window.PioneerTV || {};
       return def.label;
     },
 
+    setLabel(el, def) {
+      if (def.icon) el.replaceChildren(M.icons.svg(def.icon));
+      else el.textContent = this.displayLabel(def);
+    },
+
     refreshLabels() {
-      for (const row of this.buttons) for (const { def, el } of row) el.textContent = this.displayLabel(def);
+      for (const row of this.buttons) for (const { def, el } of row) this.setLabel(el, def);
     },
 
     highlight() {

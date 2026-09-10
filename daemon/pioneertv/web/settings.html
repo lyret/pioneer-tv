@@ -5,12 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pioneer TV – Inställningar</title>
   <link rel="icon" href="data:,">
+  <script>
+    // Shared assets live in the extension: served at /ext by the daemon, or
+    // reached relatively when this file is opened straight from the repo.
+    (function () {
+      var base = location.protocol === 'file:' ? '../../../extension/' : '/ext/';
+      ['fonts/fonts.css', 'content/paper.css'].forEach(function (p) {
+        var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = base + p; document.head.appendChild(l);
+      });
+      var s = document.createElement('script'); s.src = base + 'content/pixel-icons.js'; document.head.appendChild(s);
+      window.PIONEERTV_BASE = base;
+    })();
+  </script>
   <link rel="stylesheet" href="/static/settings.css">
 </head>
 <body>
   <div class="app">
     <nav class="sidebar" id="nav">
-      <div class="brand"><span class="brand-dot"></span> Pioneer TV</div>
+      <div class="brand"><span class="mark"></span> PIONEER TV</div>
+      <div class="brand-sub">Inställningar</div>
       <a href="#status" data-view="status" data-pioneertv-initial>Status</a>
       <a href="#wifi" data-view="wifi">Wi-Fi</a>
       <a href="#gamepads" data-view="gamepads">Handkontroller</a>
@@ -25,7 +38,7 @@
       <p class="muted">Laddar…</p>
     </main>
   </div>
-  <div class="toast" id="toast"></div>
+  <div class="toast pioneertv-card" id="toast"></div>
   <script src="/static/settings.js"></script>
 </body>
 </html>

@@ -82,7 +82,8 @@
   }
 
   // ---------------------------------------------------------------- helpers
-  const bars = (sig) => sig == null ? '' : '▂▄▆█'.slice(0, Math.max(1, Math.round(sig / 25))).padEnd(4, '░');
+  const bars = (sig) => sig == null ? '' : '####'.slice(0, Math.max(1, Math.round(sig / 25))).padEnd(4, '.');
+  const icon = (name) => (window.PioneerTV && PioneerTV.icons) ? h('span', { class: 'item-icon' }, PioneerTV.icons.svg(name)) : h('span', { class: 'item-icon' }, '·');
   const dot = (cls) => h('span', { class: `dot ${cls}` });
   const fmtUptime = (s) => s == null ? '–' : (s >= 86400 ? `${Math.floor(s / 86400)} d ` : '') + `${Math.floor((s % 86400) / 3600)} h ${Math.floor((s % 3600) / 60)} min`;
   const kv = (pairs) => h('dl', { class: 'kv' }, pairs.map(([k, v]) => [h('dt', {}, k), h('dd', {}, v)]));
@@ -107,14 +108,14 @@
       show(
         h('h1', {}, 'Status'),
         h('div', { class: 'cards' },
-          h('div', { class: 'card' }, h('h3', {}, 'Nätverk'),
+          h('div', { class: 'card pioneertv-card' }, h('h3', {}, 'Nätverk'),
             h('div', { class: 'big' }, dot(wifiState), w.state === 'connected' ? `${w.ssid} ` : w.available ? 'Wi-Fi ej ansluten' : 'Ingen Wi-Fi', w.signal != null ? h('span', { class: 'bars muted' }, ` ${bars(w.signal)} ${w.signal}%`) : ''),
             kv([['Ethernet', eth && eth.addresses.length ? `${eth.addresses.join(', ')}` : 'ej ansluten'], ['Wi-Fi IP', ((s.interfaces || []).find((i) => i.name.startsWith('w')) || { addresses: [] }).addresses.join(', ') || '–']])),
-          h('div', { class: 'card' }, h('h3', {}, 'Tailscale'),
+          h('div', { class: 'card pioneertv-card' }, h('h3', {}, 'Tailscale'),
             h('div', { class: 'big' }, dot(tsState), t.state === 'running' ? 'Ansluten' : t.installed ? `Tailscale ${t.state}` : 'Ej installerat'),
             kv([['IP', (t.ips || []).join(', ') || '–'], ['Namn', t.dns_name || '–'], ['Plex', t.plex_online == null ? 'okänd (ingen peer med det namnet)' : t.plex_online ? h('span', {}, dot('ok'), 'online') : h('span', {}, dot('bad'), 'offline')], ['Peers', `${(t.peers || []).filter((p) => p.online).length} av ${(t.peers || []).length} online`]]),
             t.installed && t.state !== 'running' ? h('div', { class: 'actions' }, h('button', { class: 'small', onclick: () => sysAction('tailscale_up') }, 'Starta Tailscale')) : ''),
-          h('div', { class: 'card' }, h('h3', {}, 'TV (HDMI-CEC)'),
+          h('div', { class: 'card pioneertv-card' }, h('h3', {}, 'TV (HDMI-CEC)'),
             h('div', { class: 'big' }, dot(s.cec.enabled ? (s.cec.tv_power === 'on' ? 'ok' : 'warn') : 'bad'), s.cec.enabled ? (s.cec.tv_power === 'on' ? 'TV på' : s.cec.tv_power ? `TV ${s.cec.tv_power}` : 'TV okänd') : 'CEC av'),
             kv([['Fysisk adress', s.cec.phys_addr || '–']]),
             h('div', { class: 'actions' },
@@ -122,10 +123,10 @@
               h('button', { class: 'small', onclick: () => cec('tv_off') }, 'TV av'),
               h('button', { class: 'small', onclick: () => cec('volume_up') }, 'Vol +'),
               h('button', { class: 'small', onclick: () => cec('volume_down') }, 'Vol −'))),
-          h('div', { class: 'card' }, h('h3', {}, 'Handkontroller'),
-            s.gamepads.length ? h('div', { class: 'list' }, s.gamepads.map((g) => h('div', { class: 'item' }, '🎮', h('div', { class: 'grow' }, h('div', { class: 'name' }, g.name), h('div', { class: 'sub' }, g.battery != null ? `Batteri ${g.battery}%` : ''))))) : h('p', { class: 'muted' }, 'Ingen ansluten'),
-            s.keyboard_present ? h('p', { class: 'muted' }, '⌨ Fysiskt tangentbord anslutet') : ''),
-          h('div', { class: 'card' }, h('h3', {}, 'System'),
+          h('div', { class: 'card pioneertv-card' }, h('h3', {}, 'Handkontroller'),
+            s.gamepads.length ? h('div', { class: 'list' }, s.gamepads.map((g) => h('div', { class: 'item pioneertv-card-flat' }, icon('gamepad'), h('div', { class: 'grow' }, h('div', { class: 'name' }, g.name), h('div', { class: 'sub' }, g.battery != null ? `Batteri ${g.battery}%` : ''))))) : h('p', { class: 'muted' }, 'Ingen ansluten'),
+            s.keyboard_present ? h('p', { class: 'muted' }, icon('keyboard'), ' Fysiskt tangentbord anslutet') : ''),
+          h('div', { class: 'card pioneertv-card' }, h('h3', {}, 'System'),
             h('div', { class: 'big' }, dot(sys.throttled_now ? 'bad' : sys.throttled_ever ? 'warn' : 'ok'), sys.temp_c != null ? `${sys.temp_c} °C` : sys.hostname),
             kv([['Ström', sys.throttled == null ? 'okänd' : sys.throttled_now ? 'underspänning / strypt nu' : sys.throttled_ever ? 'har strypts sedan start' : 'ok'],
               ['Minne', sys.mem_total_mb ? `${sys.mem_available_mb} MB ledigt av ${sys.mem_total_mb}` : '–'],
@@ -141,7 +142,7 @@
       const nets = await api('GET', '/api/wifi/networks?rescan=1');
       const list = h('div', { class: 'list' });
       for (const n of nets) {
-        const item = h('div', { class: 'item' });
+        const item = h('div', { class: 'item pioneertv-card' });
         const connectForm = h('div', { class: 'inline-form' });
         connectForm.hidden = true;
         const pw = h('input', { type: 'password', placeholder: 'Lösenord' });
@@ -174,8 +175,8 @@
         const list = h('div', { class: 'list' });
         for (const d of devices) {
           const state = d.connected ? 'Ansluten' : d.paired ? 'Parad, ej ansluten' : 'Ny enhet';
-          list.append(h('div', { class: 'item' },
-            d.icon === 'input-gaming' ? '🎮' : '📶',
+          list.append(h('div', { class: 'item pioneertv-card' },
+            icon(d.icon === 'input-gaming' ? 'gamepad' : 'link'),
             h('div', { class: 'grow' }, h('div', { class: 'name' }, d.name), h('div', { class: 'sub' }, `${state} · ${d.mac}${d.battery != null ? ` · batteri ${d.battery}%` : ''}`)),
             !d.paired ? h('button', { class: 'primary small', onclick: () => bt('pair', d, 'Parar…') }, 'Para') : '',
             d.paired && !d.connected ? h('button', { class: 'primary small', onclick: () => bt('connect', d, 'Ansluter…') }, 'Anslut') : '',
@@ -207,7 +208,7 @@
       const labels = { id: 'Id', name: 'Namn', tagline: 'Undertext', url: 'Startsida', search_url: 'Sök-URL ({query})', color: 'Färg (#hex)', glyph: 'Bokstav', logo: 'Logotyp-URL' };
       const wrap = h('div');
       const draw = () => {
-        wrap.replaceChildren(services.map((svc, i) => h('div', { class: 'service', style: `--service-color:${svc.color || '#444'}` },
+        wrap.replaceChildren(...services.map((svc, i) => h('div', { class: 'service pioneertv-card', style: `--service-color:${svc.color || '#444'}` },
           fields.map((f) => h('div', {}, h('label', {}, labels[f] || f), h('input', { type: 'text', value: svc[f] || '', oninput: (e) => { svc[f] = e.target.value; if (f === 'color') e.target.closest('.service').style.setProperty('--service-color', svc.color); } }))),
           h('div', { class: 'svc-actions' },
             h('button', { class: 'small', disabled: i === 0 ? '' : null, onclick: () => { services.splice(i - 1, 0, services.splice(i, 1)[0]); draw(); } }, '▲'),

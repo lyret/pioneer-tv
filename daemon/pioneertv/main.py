@@ -103,7 +103,7 @@ async def amain(cfg: dict) -> None:
 
     async def config_changed() -> None:
         log.info("settings updated")
-        await emit({"type": "event", "name": "toast", "text": "Inställningar sparade", "icon": "✓"})
+        await emit({"type": "event", "name": "toast", "text": "Inställningar sparade", "icon": "check"})
 
     server = Server(cfg, on_command, {
         "status": status,

@@ -1,116 +1,117 @@
-/* Pioneer TV launcher. Designed on a 1280x720 canvas; scales with vw so a
-   1080p or laptop window looks the same. Edit the tokens first. */
+/* Pioneer TV launcher: paper, ink, serif and 8-bit.
+   Designed on a 1280x720 canvas. 1rem = 1/80 of the width (16px at 1280),
+   so a laptop window and the TV look the same. Tokens live in paper.css. */
 
-:root {
-  --bg-0: #0b0d14;
-  --bg-1: #151a2b;
-  --fg: #f4f5f9;
-  --fg-dim: rgba(244, 245, 249, 0.6);
-  --accent: #ffd166;
-  --panel: rgba(255, 255, 255, 0.06);
-  --panel-strong: rgba(255, 255, 255, 0.12);
-  --radius: 1.4vw;
-  --gutter: 5vw;         /* overscan-safe margin */
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-}
-
+html { font-size: 1.25vw; }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
 body {
-  font-family: var(--font);
-  color: var(--fg);
-  background:
-    radial-gradient(120vw 80vh at 80% -10%, #263562 0%, transparent 60%),
-    radial-gradient(80vw 60vh at -10% 110%, #3a1f3d 0%, transparent 60%),
-    linear-gradient(180deg, var(--bg-1), var(--bg-0));
+  font-family: var(--pioneertv-serif);
+  color: var(--pioneertv-ink);
+  background-color: var(--pioneertv-paper);
+  background-image: var(--pioneertv-grain);
+  background-size: 0.75rem 0.75rem;
   overflow: hidden;
   cursor: none;
 }
-body:hover { cursor: default; } /* pointer appears when the right stick moves it */
+body:hover { cursor: default; }
 
-.screen {
-  height: 100%;
-  display: flex; flex-direction: column;
-  padding: 3vh var(--gutter);
+.page { height: 100%; display: flex; flex-direction: column; padding: 2.4vh 5vw 2vh; }
+
+/* ---- masthead ---- */
+.masthead { display: flex; align-items: flex-end; justify-content: space-between; height: 3.2rem; }
+.masthead-left { display: flex; align-items: center; gap: 0.8rem; }
+.mark {
+  width: 1.5rem; height: 1.5rem; background: var(--pioneertv-ink);
+  clip-path: polygon(25% 0, 75% 0, 75% 25%, 100% 25%, 100% 75%, 75% 75%, 75% 100%, 25% 100%, 25% 75%, 0 75%, 0 25%, 25% 25%);
 }
+.title { font-family: var(--pioneertv-pixel); font-weight: 700; font-size: 1.9rem; letter-spacing: 0.05em; line-height: 1; }
+.masthead-right { display: flex; align-items: center; gap: 0.9rem; }
+.pill { display: inline-flex; font-size: 1.3rem; color: var(--pioneertv-ink-3); }
+.pill.on { color: var(--pioneertv-ink); }
+.pill.warn { color: var(--pioneertv-red); }
+.clock { font-family: var(--pioneertv-pixel); font-size: 1.5rem; line-height: 1; margin-left: 0.4rem; }
 
-/* ---- top bar ---- */
-.topbar { display: flex; align-items: center; justify-content: space-between; height: 6vh; }
-.brand { display: flex; align-items: center; gap: 0.8vw; font-weight: 700; font-size: 2.2vw; letter-spacing: 0.02em; }
-.brand-dot { width: 1.2vw; height: 1.2vw; border-radius: 50%; background: var(--accent); box-shadow: 0 0 1.5vw var(--accent); }
-.status { display: flex; align-items: center; gap: 1.2vw; font-size: 1.8vw; }
-.pill { opacity: 0.3; transition: opacity 200ms; }
-.pill.on { opacity: 1; }
-#pill-daemon.on { color: #4ade80; }
-.pill.warn { opacity: 1; filter: sepia(1) saturate(4) hue-rotate(-20deg); }
-.clock { font-variant-numeric: tabular-nums; font-weight: 600; }
+.rule { height: 0.5rem; margin-top: 0.6rem; border-top: var(--pioneertv-px) solid var(--pioneertv-ink); border-bottom: 1px solid var(--pioneertv-ink); }
+.dateline {
+  display: flex; justify-content: space-between; padding: 0.35rem 0 0;
+  font-size: 1.05rem; font-variant: small-caps; letter-spacing: 0.06em; color: var(--pioneertv-ink-2);
+}
 
 /* ---- content ---- */
-.content { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 3vh; }
-.hero { margin-bottom: 1vh; }
-.greeting { margin: 0; font-size: 4.2vw; font-weight: 800; letter-spacing: -0.01em; }
-.subtitle { margin: 0.6vh 0 0; font-size: 1.9vw; color: var(--fg-dim); }
+.content { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2.4vh; }
+.hero { margin-bottom: 0.4vh; }
+.greeting { margin: 0; font-size: 3.4rem; font-weight: 600; line-height: 1.05; letter-spacing: -0.01em; }
+.subtitle { margin: 0.4rem 0 0; font-size: 1.5rem; font-style: italic; color: var(--pioneertv-ink-2); }
 
-.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2vw; }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 .tile {
   position: relative; display: flex; flex-direction: column; justify-content: flex-end;
-  height: 28vh; padding: 2vw; border-radius: var(--radius);
-  color: #fff; text-decoration: none; overflow: hidden;
-  background: var(--tile-color, #444);
-  background-image: linear-gradient(160deg, rgba(255,255,255,0.18), rgba(0,0,0,0.25));
-  box-shadow: 0 1.5vh 4vh rgba(0,0,0,0.45);
-  transition: transform 140ms ease-out, box-shadow 140ms ease-out;
-  will-change: transform;
+  height: 27vh; padding: 1rem 1.2rem 0.9rem;
+  color: var(--pioneertv-ink); text-decoration: none;
+}
+.tile .band {
+  position: absolute; top: 0; left: 0; right: 0; height: calc(var(--pioneertv-px) * 3);
+  background: var(--tile-color, var(--pioneertv-ink));
+}
+.tile .band::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 100%; height: calc(var(--pioneertv-px) * 2);
+  background-image: var(--pioneertv-dither); background-size: var(--pioneertv-px) var(--pioneertv-px);
+  opacity: 0.25;
 }
 .tile .glyph {
-  position: absolute; top: 1.2vw; right: 1.6vw;
-  font-size: 9vw; font-weight: 900; line-height: 1; opacity: 0.18; letter-spacing: -0.05em;
+  position: absolute; top: 1.2rem; right: 1.1rem;
+  font-family: var(--pioneertv-pixel); font-weight: 700; font-size: 5.2rem; line-height: 1;
+  color: var(--tile-color, var(--pioneertv-ink)); opacity: 0.9;
 }
-.tile .logo { position: absolute; top: 1.6vw; left: 2vw; height: 4.5vw; max-width: 60%; object-fit: contain; }
-.tile .name { font-size: 2.6vw; font-weight: 800; }
-.tile .tagline { font-size: 1.5vw; opacity: 0.85; margin-top: 0.4vh; }
-.tile.pioneertv-focus, .tile:hover { transform: scale(1.05); box-shadow: 0 2.5vh 6vh rgba(0,0,0,0.6); }
+.tile .logo { position: absolute; top: 1.4rem; left: 1.2rem; height: 3rem; max-width: 55%; object-fit: contain; filter: grayscale(1) contrast(1.2); }
+.tile .name { font-size: 2.1rem; font-weight: 600; line-height: 1.1; }
+.tile .tagline { font-size: 1.15rem; font-style: italic; color: var(--pioneertv-ink-2); margin-top: 0.2rem; }
+.tile .index { position: absolute; bottom: 0.9rem; right: 1.1rem; font-family: var(--pioneertv-pixel); font-size: 0.8rem; color: var(--pioneertv-ink-3); }
+.tile.pioneertv-focus, .tile:hover { border-image-source: var(--pioneertv-card-focus); transform: translate(calc(var(--pioneertv-px) * -1), calc(var(--pioneertv-px) * -1)); }
+.tile.pioneertv-focus .name { text-decoration: underline; text-decoration-thickness: var(--pioneertv-px); text-underline-offset: 0.2em; }
 
 /* ---- search row ---- */
-.row { display: grid; grid-template-columns: 1fr auto auto; gap: 2vw; align-items: stretch; }
-.search {
-  display: flex; align-items: center; gap: 1vw;
-  padding: 0 2vw; border-radius: var(--radius);
-  background: var(--panel); border: 0.2vw solid transparent;
-  transition: background 140ms, border-color 140ms;
-}
-.search:focus-within { background: var(--panel-strong); border-color: var(--accent); }
-.search-icon { font-size: 2.4vw; opacity: 0.7; }
+.row { display: grid; grid-template-columns: 1fr auto auto; gap: 1.5rem; align-items: stretch; }
+.search { display: flex; align-items: center; gap: 0.8rem; padding-left: 1rem; margin: 0; }
+.search-icon { font-size: 1.6rem; color: var(--pioneertv-ink-2); display: inline-flex; }
 .search input {
-  flex: 1; height: 9vh; background: transparent; border: 0; outline: 0;
-  color: var(--fg); font: 2vw var(--font);
+  flex: 1; height: 3.6rem; background: transparent; border: 0; outline: 0;
+  color: var(--pioneertv-ink); font: 1.5rem var(--pioneertv-serif);
 }
-.search input::placeholder { color: var(--fg-dim); }
+.search input::placeholder { color: var(--pioneertv-ink-3); font-style: italic; }
 .search input.pioneertv-focus { outline: none !important; box-shadow: none !important; }
+.search.pioneertv-card:focus-within { border-image-source: var(--pioneertv-card-focus); }
 .small-tile {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4vh;
-  min-width: 12vw; padding: 0 1.6vw; border-radius: var(--radius); border: 0;
-  background: var(--panel); color: var(--fg); font: 1.5vw var(--font); cursor: pointer;
-  transition: transform 140ms, background 140ms;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.15rem;
+  min-width: 8.5rem; padding-left: 0.8rem; padding-top: 0.2rem;
+  color: var(--pioneertv-ink); font: 1rem var(--pioneertv-pixel); cursor: pointer; text-transform: uppercase;
 }
-.small-tile .small-icon { font-size: 2.6vw; }
-.small-tile.pioneertv-focus, .small-tile:hover { background: var(--panel-strong); transform: scale(1.05); }
+.small-tile .small-icon { font-size: 1.7rem; display: inline-flex; }
+.small-tile.pioneertv-focus, .small-tile:hover { border-image-source: var(--pioneertv-card-focus); }
 
 /* ---- search targets ---- */
-.search-targets { padding: 2vh 0 0; }
-.targets-title { margin: 0 0 1.2vh; font-size: 1.8vw; color: var(--fg-dim); }
-.targets { display: flex; gap: 1.5vw; }
+.search-targets { padding-top: 0.6rem; }
+.targets-title { margin: 0 0 0.8rem; font-size: 1.3rem; color: var(--pioneertv-ink-2); }
+.targets-title em { color: var(--pioneertv-ink); }
+.targets { display: flex; gap: 1rem; }
 .target {
-  padding: 1.6vh 2.4vw; border-radius: 999px; border: 0;
-  background: var(--target-color); color: #fff; font: 700 1.7vw var(--font); cursor: pointer;
-  transition: transform 140ms;
+  display: inline-flex; align-items: center; gap: 0.7rem;
+  padding: 0.5rem 1.4rem 0.4rem 1rem; color: var(--pioneertv-ink);
+  font: 700 1rem var(--pioneertv-pixel); text-transform: uppercase; cursor: pointer;
 }
-.target.pioneertv-focus, .target:hover { transform: scale(1.06); }
+.target::before { content: ""; width: 0.75rem; height: 0.75rem; background: var(--target-color, var(--pioneertv-ink)); }
+.target.pioneertv-focus, .target:hover { border-image-source: var(--pioneertv-card-focus); }
 
-/* ---- footer ---- */
-.hint { display: flex; gap: 3vw; height: 5vh; align-items: center; font-size: 1.4vw; color: var(--fg-dim); }
-.hint b { color: var(--fg); font-weight: 700; }
-.hint .credit { margin-left: auto; letter-spacing: 0.04em; text-transform: uppercase; font-size: 1.1vw; }
+/* ---- legend ---- */
+.legend {
+  display: flex; align-items: center; gap: 2.2rem; height: 2.6rem; margin-top: 1vh;
+  border-top: 1px solid var(--pioneertv-ink-3);
+  font-size: 1.05rem; font-variant: small-caps; letter-spacing: 0.05em; color: var(--pioneertv-ink-2);
+}
+.legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
+.legend i { display: inline-flex; font-size: 0.9rem; font-style: normal; color: var(--pioneertv-ink); }
+.legend .credit { margin-left: auto; font-family: var(--pioneertv-pixel); font-variant: normal; font-size: 0.75rem; letter-spacing: 0.08em; color: var(--pioneertv-ink-3); }
 
-/* On the launcher the focus ring is drawn by the tiles themselves. */
-.pioneertv-focus { outline-color: var(--accent) !important; }
+/* focus ring is drawn by the cards themselves here */
+.pioneertv-focus { outline: none !important; box-shadow: none !important; }

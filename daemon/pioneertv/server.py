@@ -18,6 +18,7 @@ from . import settings, sysinfo
 
 log = logging.getLogger("pioneertv.server")
 WEB_DIR = Path(__file__).resolve().parent / "web"
+EXT_DIR = Path(__file__).resolve().parent.parent.parent / "extension"  # repo and /opt layouts both
 LOCAL_PEERS = {"127.0.0.1", "::1", "::ffff:127.0.0.1"}
 
 
@@ -34,6 +35,8 @@ class Server:
         self.app.router.add_get("/ws", self.ws_handler)
         self.app.router.add_get("/", self.index)
         self.app.router.add_static("/static", WEB_DIR, show_index=False)
+        if EXT_DIR.is_dir():
+            self.app.router.add_static("/ext", EXT_DIR, show_index=False)
         api = [
             ("GET", "/api/status", self.api_status),
             ("GET", "/api/settings", self.api_settings_get),

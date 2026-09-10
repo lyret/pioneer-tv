@@ -4,64 +4,69 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pioneer TV</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../fonts/fonts.css">
+  <link rel="stylesheet" href="../content/paper.css">
   <link rel="stylesheet" href="../content/content.css">
   <link rel="stylesheet" href="launcher.css">
 </head>
 <body>
-  <div class="screen">
-    <header class="topbar">
-      <div class="brand">
-        <span class="brand-dot"></span>
-        <span class="brand-name">Pioneer TV</span>
+  <div class="page">
+    <header class="masthead">
+      <div class="masthead-left">
+        <span class="mark" aria-hidden="true"></span>
+        <span class="title">PIONEER TV</span>
       </div>
-      <div class="status">
-        <span class="pill" id="pill-wifi" title="Nätverk">📶</span>
-        <span class="pill" id="pill-tailscale" title="Tailscale">🔗</span>
-        <span class="pill" id="pill-gamepad" title="Handkontroll">🎮</span>
-        <span class="pill" id="pill-daemon" title="Daemon">●</span>
+      <div class="masthead-right">
+        <span class="pill" id="pill-wifi" title="Nätverk"></span>
+        <span class="pill" id="pill-tailscale" title="Tailscale"></span>
+        <span class="pill" id="pill-gamepad" title="Handkontroll"></span>
+        <span class="pill" id="pill-daemon" title="Daemon"></span>
         <span class="clock" id="clock">--:--</span>
       </div>
     </header>
+    <div class="rule"></div>
+    <div class="dateline"><span id="dateline">…</span><span class="edition">Maskinrepubliken · Nr 1</span></div>
 
     <main class="content">
       <section class="hero">
-        <h1 class="greeting" id="greeting">God kväll</h1>
+        <h1 class="greeting" id="greeting">God kväll.</h1>
         <p class="subtitle">Vad vill du se?</p>
       </section>
 
       <section class="tiles" id="tiles" aria-label="Tjänster"></section>
 
       <section class="row">
-        <form class="search" id="search-form" role="search">
-          <span class="search-icon">⌕</span>
+        <form class="search pioneertv-card" id="search-form" role="search">
+          <span class="search-icon" id="search-icon"></span>
           <input id="search" type="search" placeholder="Sök film eller serie…" autocomplete="off" data-pioneertv-initial>
         </form>
-        <button class="small-tile" id="btn-menu" type="button">
-          <span class="small-icon">☰</span><span>Meny</span>
+        <button class="small-tile pioneertv-card" id="btn-menu" type="button">
+          <span class="small-icon" data-icon="menu"></span><span>Meny</span>
         </button>
-        <button class="small-tile" id="btn-tv" type="button">
-          <span class="small-icon">⏻</span><span>TV av</span>
+        <button class="small-tile pioneertv-card" id="btn-tv" type="button">
+          <span class="small-icon" data-icon="power"></span><span>TV av</span>
         </button>
       </section>
 
       <section class="search-targets" id="search-targets" hidden>
-        <p class="targets-title">Sök efter <strong id="targets-query"></strong> på</p>
+        <p class="targets-title">Sök efter <em id="targets-query"></em> på</p>
         <div class="targets" id="targets"></div>
       </section>
     </main>
 
-    <footer class="hint">
-      <span><b>◀ ▶ ▲ ▼</b> navigera</span>
-      <span><b>A</b> välj</span>
-      <span><b>B</b> tillbaka</span>
-      <span><b>Y</b> tangentbord</span>
-      <span><b>Start</b> meny</span>
-      <span><b>Guide</b> hem</span>
-      <span class="credit">Pioneer TV · Maskinrepubliken</span>
+    <footer class="legend">
+      <span><i data-icon="arrowLeft"></i><i data-icon="arrowRight"></i><i data-icon="arrowUp"></i><i data-icon="arrowDown"></i> navigera</span>
+      <span><kbd class="pioneertv-kbd">A</kbd> välj</span>
+      <span><kbd class="pioneertv-kbd">B</kbd> tillbaka</span>
+      <span><kbd class="pioneertv-kbd">Y</kbd> tangentbord</span>
+      <span><kbd class="pioneertv-kbd">START</kbd> meny</span>
+      <span><kbd class="pioneertv-kbd">GUIDE</kbd> hem</span>
     </footer>
   </div>
 
   <script src="default-services.js"></script>
+  <script src="../content/pixel-icons.js"></script>
   <script src="../content/bridge.js"></script>
   <script src="../content/spatial-nav.js"></script>
   <script src="../content/keyboard.js"></script>
