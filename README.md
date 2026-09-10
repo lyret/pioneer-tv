@@ -160,6 +160,11 @@ bluetoothctl
   connect <MAC>
 ```
 
+If `bluetoothctl` says "No default controller available", the onboard chip is
+not attached: `sudo systemctl enable --now hciuart bluetooth`, `rfkill unblock
+bluetooth`, and make sure `pi-bluetooth` is installed and `dtoverlay=disable-bt`
+is not in config.txt.
+
 Tailscale is optional: `curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up`.
 
 Log in to Cineasterna and Plex once with the on-screen keyboard; the Chromium

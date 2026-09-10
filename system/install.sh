@@ -38,7 +38,8 @@ apt-get install -y --no-install-recommends \
 apt-get install -y --no-install-recommends chromium-browser \
   || apt-get install -y --no-install-recommends chromium
 # Nice to have; not present on every image.
-for p in libwidevinecdm0 zram-tools fonts-noto-color-emoji; do
+# pi-bluetooth attaches the onboard Bluetooth chip (hciuart) on Pi 3/4/Zero.
+for p in pi-bluetooth libwidevinecdm0 zram-tools fonts-noto-color-emoji; do
   apt-get install -y --no-install-recommends "$p" || echo "warning: $p not available, continuing"
 done
 fi
@@ -93,6 +94,8 @@ systemctl daemon-reload
 systemctl disable getty@tty1.service || true
 systemctl set-default graphical.target
 systemctl enable seatd bluetooth pioneer-tv-governor.service
+systemctl enable hciuart 2>/dev/null || true
+rfkill unblock bluetooth 2>/dev/null || true
 systemctl enable zramswap 2>/dev/null || true
 systemctl enable pioneer-tv-daemon.service pioneer-tv-weston.service
 
