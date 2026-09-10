@@ -1,0 +1,84 @@
+# Magic TV daemon configuration. Installed to /etc/magic-tv/config.toml.
+# Anything left out falls back to the defaults in magictv/config.py.
+
+[daemon]
+host = "127.0.0.1"
+port = 8765
+log_level = "info"
+
+[cec]
+enabled = true
+device = "/dev/cec0"
+osd_name = "Magic TV"
+tv_address = 0
+tv_on_gamepad_connect = true   # PS/Xbox button wakes the TV and switches input
+monitor = true                 # follow TV standby and TV remote keys
+
+[gamepad]
+stick_deadzone = 0.45
+trigger_threshold = 0.5
+long_press_ms = 800
+repeat_ms = 220
+
+# Button → action. Actions: {key=, modifiers=[]}, {mouse_button=}, {cec=}, {system=}.
+# cec: volume_up, volume_down, mute, tv_on, tv_off, tv_toggle, active_source
+# system: home, menu, keyboard, status, escape, reload, back
+[gamepad.buttons]
+BTN_SOUTH  = { key = "KEY_ENTER" }
+BTN_EAST   = { key = "KEY_ESC" }
+BTN_WEST   = { key = "KEY_SPACE" }
+BTN_NORTH  = { system = "keyboard" }
+BTN_TL     = { key = "KEY_LEFT",  modifiers = ["KEY_LEFTALT"] }
+BTN_TR     = { key = "KEY_RIGHT", modifiers = ["KEY_LEFTALT"] }
+BTN_TL2    = { cec = "volume_down", repeat = true }
+BTN_TR2    = { cec = "volume_up",   repeat = true }
+BTN_SELECT = { system = "status", long = { cec = "tv_toggle" } }
+BTN_START  = { system = "menu" }
+BTN_MODE   = { system = "home" }
+BTN_THUMBL = { mouse_button = "BTN_RIGHT" }
+BTN_THUMBR = { mouse_button = "BTN_LEFT" }
+
+[gamepad.axes]
+ABS_HAT0X = { negative = { key = "KEY_LEFT" }, positive = { key = "KEY_RIGHT" } }
+ABS_HAT0Y = { negative = { key = "KEY_UP" },   positive = { key = "KEY_DOWN" } }
+ABS_X     = { negative = { key = "KEY_LEFT" }, positive = { key = "KEY_RIGHT" } }
+ABS_Y     = { negative = { key = "KEY_UP" },   positive = { key = "KEY_DOWN" } }
+ABS_RX    = { mouse = "x" }
+ABS_RY    = { mouse = "y" }
+ABS_Z     = { positive = { cec = "volume_down", repeat = true } }
+ABS_RZ    = { positive = { cec = "volume_up",   repeat = true } }
+
+[mouse]
+deadzone = 0.15
+max_speed = 1100.0   # pixels per second at full deflection
+curve = 2.0
+hz = 60
+
+# Services shown by the launcher. {query} is replaced by the search text.
+[[services]]
+id = "cineasterna"
+name = "Cineasterna"
+tagline = "Film från biblioteket"
+url = "https://www.cineasterna.se/"
+search_url = "https://www.cineasterna.se/sv/search?q={query}"
+color = "#b5122b"
+glyph = "C"
+
+[[services]]
+id = "svtplay"
+name = "SVT Play"
+tagline = "Serier, nyheter och dokumentärer"
+url = "https://www.svtplay.se/"
+search_url = "https://www.svtplay.se/sok?q={query}"
+color = "#1f7a4d"
+glyph = "S"
+
+[[services]]
+id = "plex"
+name = "Plex"
+tagline = "Egna filmer och serier"
+# Use your own server so the web app is served from the LAN, not app.plex.tv.
+url = "http://plex.local:32400/web"
+search_url = "http://plex.local:32400/web/index.html#!/search?query={query}"
+color = "#c98a12"
+glyph = "P"

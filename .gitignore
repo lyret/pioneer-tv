@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+extension/launcher/logos/
+node_modules/

@@ -1,0 +1,114 @@
+/* Magic TV launcher. Designed on a 1280x720 canvas; scales with vw so a
+   1080p or laptop window looks the same. Edit the tokens first. */
+
+:root {
+  --bg-0: #0b0d14;
+  --bg-1: #151a2b;
+  --fg: #f4f5f9;
+  --fg-dim: rgba(244, 245, 249, 0.6);
+  --accent: #ffd166;
+  --panel: rgba(255, 255, 255, 0.06);
+  --panel-strong: rgba(255, 255, 255, 0.12);
+  --radius: 1.4vw;
+  --gutter: 5vw;         /* overscan-safe margin */
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: var(--font);
+  color: var(--fg);
+  background:
+    radial-gradient(120vw 80vh at 80% -10%, #263562 0%, transparent 60%),
+    radial-gradient(80vw 60vh at -10% 110%, #3a1f3d 0%, transparent 60%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-0));
+  overflow: hidden;
+  cursor: none;
+}
+body:hover { cursor: default; } /* pointer appears when the right stick moves it */
+
+.screen {
+  height: 100%;
+  display: flex; flex-direction: column;
+  padding: 3vh var(--gutter);
+}
+
+/* ---- top bar ---- */
+.topbar { display: flex; align-items: center; justify-content: space-between; height: 6vh; }
+.brand { display: flex; align-items: center; gap: 0.8vw; font-weight: 700; font-size: 2.2vw; letter-spacing: 0.02em; }
+.brand-dot { width: 1.2vw; height: 1.2vw; border-radius: 50%; background: var(--accent); box-shadow: 0 0 1.5vw var(--accent); }
+.status { display: flex; align-items: center; gap: 1.2vw; font-size: 1.8vw; }
+.pill { opacity: 0.3; transition: opacity 200ms; }
+.pill.on { opacity: 1; }
+#pill-daemon.on { color: #4ade80; }
+.clock { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* ---- content ---- */
+.content { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 3vh; }
+.hero { margin-bottom: 1vh; }
+.greeting { margin: 0; font-size: 4.2vw; font-weight: 800; letter-spacing: -0.01em; }
+.subtitle { margin: 0.6vh 0 0; font-size: 1.9vw; color: var(--fg-dim); }
+
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2vw; }
+.tile {
+  position: relative; display: flex; flex-direction: column; justify-content: flex-end;
+  height: 28vh; padding: 2vw; border-radius: var(--radius);
+  color: #fff; text-decoration: none; overflow: hidden;
+  background: var(--tile-color, #444);
+  background-image: linear-gradient(160deg, rgba(255,255,255,0.18), rgba(0,0,0,0.25));
+  box-shadow: 0 1.5vh 4vh rgba(0,0,0,0.45);
+  transition: transform 140ms ease-out, box-shadow 140ms ease-out;
+  will-change: transform;
+}
+.tile .glyph {
+  position: absolute; top: 1.2vw; right: 1.6vw;
+  font-size: 9vw; font-weight: 900; line-height: 1; opacity: 0.18; letter-spacing: -0.05em;
+}
+.tile .logo { position: absolute; top: 1.6vw; left: 2vw; height: 4.5vw; max-width: 60%; object-fit: contain; }
+.tile .name { font-size: 2.6vw; font-weight: 800; }
+.tile .tagline { font-size: 1.5vw; opacity: 0.85; margin-top: 0.4vh; }
+.tile.magictv-focus, .tile:hover { transform: scale(1.05); box-shadow: 0 2.5vh 6vh rgba(0,0,0,0.6); }
+
+/* ---- search row ---- */
+.row { display: grid; grid-template-columns: 1fr auto auto; gap: 2vw; align-items: stretch; }
+.search {
+  display: flex; align-items: center; gap: 1vw;
+  padding: 0 2vw; border-radius: var(--radius);
+  background: var(--panel); border: 0.2vw solid transparent;
+  transition: background 140ms, border-color 140ms;
+}
+.search:focus-within { background: var(--panel-strong); border-color: var(--accent); }
+.search-icon { font-size: 2.4vw; opacity: 0.7; }
+.search input {
+  flex: 1; height: 9vh; background: transparent; border: 0; outline: 0;
+  color: var(--fg); font: 2vw var(--font);
+}
+.search input::placeholder { color: var(--fg-dim); }
+.search input.magictv-focus { outline: none !important; box-shadow: none !important; }
+.small-tile {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4vh;
+  min-width: 12vw; padding: 0 1.6vw; border-radius: var(--radius); border: 0;
+  background: var(--panel); color: var(--fg); font: 1.5vw var(--font); cursor: pointer;
+  transition: transform 140ms, background 140ms;
+}
+.small-tile .small-icon { font-size: 2.6vw; }
+.small-tile.magictv-focus, .small-tile:hover { background: var(--panel-strong); transform: scale(1.05); }
+
+/* ---- search targets ---- */
+.search-targets { padding: 2vh 0 0; }
+.targets-title { margin: 0 0 1.2vh; font-size: 1.8vw; color: var(--fg-dim); }
+.targets { display: flex; gap: 1.5vw; }
+.target {
+  padding: 1.6vh 2.4vw; border-radius: 999px; border: 0;
+  background: var(--target-color); color: #fff; font: 700 1.7vw var(--font); cursor: pointer;
+  transition: transform 140ms;
+}
+.target.magictv-focus, .target:hover { transform: scale(1.06); }
+
+/* ---- footer ---- */
+.hint { display: flex; gap: 3vw; height: 5vh; align-items: center; font-size: 1.4vw; color: var(--fg-dim); }
+.hint b { color: var(--fg); font-weight: 700; }
+
+/* On the launcher the focus ring is drawn by the tiles themselves. */
+.magictv-focus { outline-color: var(--accent) !important; }

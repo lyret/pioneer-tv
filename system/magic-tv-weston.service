@@ -1,0 +1,30 @@
+[Unit]
+Description=Magic TV display (Weston + Chromium)
+After=systemd-user-sessions.service plymouth-quit-wait.service magic-tv-daemon.service
+Wants=magic-tv-daemon.service
+Conflicts=getty@tty1.service
+RequiresMountsFor=/run
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+PAMName=login
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+StandardInput=tty-fail
+StandardOutput=journal
+StandardError=journal
+UtmpIdentifier=tty1
+UtmpMode=user
+Environment=XDG_SESSION_TYPE=wayland
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=HOME=/home/pi
+ExecStart=/usr/bin/weston --config=/home/pi/.config/weston.ini
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical.target

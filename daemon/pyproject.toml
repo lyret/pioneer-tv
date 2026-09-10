@@ -1,0 +1,16 @@
+[project]
+name = "magictv"
+version = "0.1.0"
+description = "Magic TV daemon: gamepad to virtual input, HDMI-CEC and a bridge to the Chromium shell"
+requires-python = ">=3.11"
+dependencies = ["evdev>=1.6", "websockets>=10.4"]
+
+[project.scripts]
+magictv = "magictv.main:run"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["magictv*"]

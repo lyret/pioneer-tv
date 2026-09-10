@@ -1,0 +1,18 @@
+[Unit]
+Description=Magic TV daemon (gamepad, HDMI-CEC, extension bridge)
+After=bluetooth.service
+Wants=bluetooth.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -m magictv --config /etc/magic-tv/config.toml
+WorkingDirectory=/opt/magic-tv/daemon
+Environment=PYTHONPATH=/opt/magic-tv/daemon
+Environment=PYTHONUNBUFFERED=1
+Restart=always
+RestartSec=2
+# Needs /dev/uinput, /dev/input/event* and /dev/cec0.
+User=root
+
+[Install]
+WantedBy=multi-user.target

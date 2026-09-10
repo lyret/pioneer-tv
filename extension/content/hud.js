@@ -1,0 +1,92 @@
+// Magic TV HUD: toasts and the quick menu (Start button).
+window.MagicTV = window.MagicTV || {};
+(function (M) {
+  const hud = {
+    toastEl: null, toastTimer: null,
+
+    toast(text, icon = '', ms = 1800) {
+      if (!this.toastEl) {
+        this.toastEl = document.createElement('div');
+        this.toastEl.className = 'magictv-toast';
+        this.toastEl.setAttribute('data-magictv-overlay', '');
+        document.documentElement.appendChild(this.toastEl);
+      }
+      this.toastEl.innerHTML = '';
+      if (icon) { const i = document.createElement('span'); i.className = 'magictv-toast-icon'; i.textContent = icon; this.toastEl.appendChild(i); }
+      const t = document.createElement('span'); t.textContent = text; this.toastEl.appendChild(t);
+      this.toastEl.classList.add('magictv-toast-show');
+      clearTimeout(this.toastTimer);
+      this.toastTimer = setTimeout(() => this.toastEl.classList.remove('magictv-toast-show'), ms);
+    },
+
+    menu: {
+      root: null, index: 0, items: [],
+      isOpen() { return !!(this.root && this.root.isConnected); },
+      toggle() { this.isOpen() ? this.close() : this.open(); },
+      open() {
+        if (M.keyboard && M.keyboard.isOpen()) M.keyboard.close();
+        const b = M.bridge;
+        const tv = b && b.state.daemonConnected;
+        this.items = [
+          { label: 'Hem', icon: '⌂', run: () => b.home() },
+          { label: 'Tangentbord', icon: '⌨', run: () => M.keyboard.toggle() },
+          { label: 'Tillbaka', icon: '‹', run: () => (b.available ? b.send({ type: 'back' }) : history.back()) },
+          { label: 'Ladda om sidan', icon: '↻', run: () => location.reload() },
+          { label: 'Volym +', icon: '🔊', run: () => b.cec('volume_up'), keep: true, disabled: !tv },
+          { label: 'Volym −', icon: '🔉', run: () => b.cec('volume_down'), keep: true, disabled: !tv },
+          { label: 'Stäng av TV', icon: '⏻', run: () => b.cec('tv_off'), disabled: !tv },
+        ];
+        const root = document.createElement('div');
+        root.className = 'magictv-menu';
+        root.setAttribute('data-magictv-overlay', '');
+        const panel = document.createElement('div');
+        panel.className = 'magictv-menu-panel';
+        const title = document.createElement('div');
+        title.className = 'magictv-menu-title';
+        title.textContent = 'Magic TV';
+        panel.appendChild(title);
+        this.items.forEach((it, i) => {
+          const el = document.createElement('div');
+          el.className = 'magictv-menu-item' + (it.disabled ? ' magictv-menu-disabled' : '');
+          el.innerHTML = `<span class="magictv-menu-icon">${it.icon}</span><span>${it.label}</span>`;
+          el.addEventListener('click', () => { this.index = i; this.activate(); });
+          it.el = el;
+          panel.appendChild(el);
+        });
+        const hint = document.createElement('div');
+        hint.className = 'magictv-keyhint';
+        hint.textContent = 'A: välj   B: stäng';
+        panel.appendChild(hint);
+        root.appendChild(panel);
+        document.documentElement.appendChild(root);
+        this.root = root;
+        this.index = 0;
+        this.highlight();
+        M.nav.captured = this;
+      },
+      close() {
+        if (this.root) this.root.remove();
+        this.root = null;
+        if (M.nav.captured === this) M.nav.captured = null;
+      },
+      highlight() { this.items.forEach((it, i) => it.el.classList.toggle('magictv-menu-active', i === this.index)); },
+      activate() {
+        const it = this.items[this.index];
+        if (!it || it.disabled) return;
+        if (!it.keep) this.close();
+        it.run();
+      },
+      onKeyDown(e) {
+        const handled = ['ArrowUp', 'ArrowDown', 'Enter', 'Escape'];
+        if (!handled.includes(e.key)) return;
+        e.preventDefault(); e.stopImmediatePropagation();
+        if (e.key === 'ArrowUp') { this.index = (this.index - 1 + this.items.length) % this.items.length; this.highlight(); }
+        else if (e.key === 'ArrowDown') { this.index = (this.index + 1) % this.items.length; this.highlight(); }
+        else if (e.key === 'Enter') this.activate();
+        else this.close();
+      },
+    },
+  };
+
+  M.hud = hud;
+})(window.MagicTV);

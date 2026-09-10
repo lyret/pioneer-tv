@@ -1,0 +1,38 @@
+// Magic TV content entry point: wires bridge events to the overlays.
+(function (M) {
+  if (window.top !== window) return; // main frame only
+  if (M._started) return;
+  M._started = true;
+
+  M.bridge.init();
+  M.nav.init();
+
+  const b = M.bridge;
+  b.on('keyboard', () => M.keyboard.toggle());
+  b.on('menu', () => M.hud.menu.toggle());
+  b.on('escape', () => {
+    if (M.hud.menu.isOpen()) M.hud.menu.close();
+    else if (M.keyboard.isOpen()) M.keyboard.close();
+  });
+  b.on('volume', (e) => M.hud.toast(e.direction === 'up' ? 'Volym +' : e.direction === 'down' ? 'Volym −' : 'Ljud av', '🔊'));
+  b.on('gamepad', (e) => M.hud.toast(e.connected ? `Handkontroll ansluten` : 'Handkontroll frånkopplad', '🎮'));
+  b.on('tv', (e) => {
+    if (e.power === 'standby') {
+      document.querySelectorAll('video').forEach((v) => { try { v.pause(); } catch {} });
+      M.hud.toast('TV i standby, paus', '⏻');
+    } else if (e.power === 'on') M.hud.toast('TV på', '⏻');
+  });
+  b.on('status', () => {
+    const s = b.state;
+    M.hud.toast(`${s.daemonConnected ? 'Daemon ansluten' : 'Ingen daemon'} · ${location.hostname || 'launcher'}`, 'ℹ');
+  });
+  b.on('toast', (e) => M.hud.toast(e.text, e.icon || ''));
+
+  b.on('state', (s) => document.documentElement.classList.toggle('magictv-tv', !!s.tvMode));
+
+  // Escape closes overlays before it reaches the page.
+  window.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (M.hud.menu.isOpen() || M.keyboard.isOpen()) return; // captured layers handle it
+  }, true);
+})(window.MagicTV);
