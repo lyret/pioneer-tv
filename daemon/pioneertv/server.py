@@ -14,7 +14,7 @@ from typing import Any, Callable, Coroutine
 
 from aiohttp import WSMsgType, web
 
-from . import settings, sysinfo
+from . import settings, sysinfo, updater
 
 log = logging.getLogger("pioneertv.server")
 WEB_DIR = Path(__file__).resolve().parent / "web"
@@ -51,6 +51,9 @@ class Server:
             ("POST", "/api/cec", self.api_cec),
             ("POST", "/api/system", self.api_system),
             ("GET", "/api/logs", self.api_logs),
+            ("GET", "/api/update", self.api_update_check),
+            ("POST", "/api/update", self.api_update_start),
+            ("GET", "/api/update/status", self.api_update_status),
         ]
         for method, path, handler in api:
             self.app.router.add_route(method, path, handler)
@@ -198,11 +201,22 @@ class Server:
 
     async def api_logs(self, request: web.Request) -> web.Response:
         unit = request.query.get("unit", "pioneer-tv-daemon")
-        if unit not in ("pioneer-tv-daemon", "pioneer-tv-weston", "bluetooth", "NetworkManager", "tailscaled"):
+        if unit not in ("pioneer-tv-daemon", "pioneer-tv-weston", "pioneer-tv-update", "bluetooth", "NetworkManager", "tailscaled"):
             raise web.HTTPBadRequest(text="unknown unit")
         lines = max(10, min(int(request.query.get("lines", "120")), 1000))
         _, out = await sysinfo.run("journalctl", "-u", unit, "-n", str(lines), "--no-pager", "-o", "short-iso", timeout=10)
         return web.Response(text=out, content_type="text/plain")
+
+    async def api_update_check(self, request: web.Request) -> web.Response:
+        return web.json_response(await updater.check(fetch=request.query.get("fetch", "1") != "0"))
+
+    async def api_update_start(self, request: web.Request) -> web.Response:
+        data = await self._json(request)
+        ok, msg = await updater.start(force=bool(data.get("force")))
+        return web.json_response({"ok": ok, "message": msg}, status=200 if ok else 400)
+
+    async def api_update_status(self, request: web.Request) -> web.Response:
+        return web.json_response(await updater.status())
 
     # ------------------------------------------------------------ run
     async def run(self) -> None:

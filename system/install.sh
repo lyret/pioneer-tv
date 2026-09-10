@@ -10,6 +10,7 @@ HOME_DIR=$(getent passwd "$USER_NAME" | cut -d: -f6)
 BOOT=/boot/firmware
 [ -d "$BOOT" ] || BOOT=/boot
 
+if [ "${PIONEER_TV_SKIP_APT:-0}" != "1" ]; then
 echo "== packages"
 apt-get update
 apt-get install -y --no-install-recommends \
@@ -20,13 +21,15 @@ apt-get install -y --no-install-recommends \
   python3 python3-evdev python3-aiohttp \
   zram-tools cpufrequtils \
   fonts-noto-core fonts-noto-color-emoji
+fi
 
 echo "== files"
 mkdir -p "$TARGET" /etc/pioneer-tv "$HOME_DIR/.config"
 rsync -a --delete "$REPO/extension/" "$TARGET/extension/"
 rsync -a --delete "$REPO/daemon/" "$TARGET/daemon/"
 rsync -a "$REPO/system/" "$TARGET/system/"
-chmod +x "$TARGET/system/start-chromium.sh"
+chmod +x "$TARGET/system/start-chromium.sh" "$TARGET/system/update.sh"
+mkdir -p /var/lib/pioneer-tv
 [ -f /etc/pioneer-tv/config.toml ] || cp "$REPO/daemon/config.example.toml" /etc/pioneer-tv/config.toml
 [ -f /etc/pioneer-tv/chromium.env ] || cp "$REPO/system/chromium.env" /etc/pioneer-tv/chromium.env
 cp "$REPO/system/weston.ini" "$HOME_DIR/.config/weston.ini"

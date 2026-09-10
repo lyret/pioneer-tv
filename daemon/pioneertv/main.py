@@ -7,7 +7,7 @@ import logging
 import signal
 import time
 
-from . import __version__, config, settings, sysinfo
+from . import __version__, config, settings, sysinfo, updater
 from .actions import Dispatcher
 from .cec import Cec
 from .gamepad import GamepadManager, MouseDriver
@@ -31,11 +31,32 @@ async def amain(cfg: dict) -> None:
     dispatcher = Dispatcher(cfg, vinput, cec, emit)
     mouse = MouseDriver(cfg, vinput)
 
+    async def toast(text: str, icon: str = "info") -> None:
+        await emit({"type": "event", "name": "toast", "text": text, "icon": icon})
+
+    async def update_from_menu() -> None:
+        """Quick-menu update: only acts when the repo is actually behind."""
+        await toast("Söker efter uppdatering…", "reload")
+        info = await updater.check()
+        if info.get("error"):
+            await toast(f"Uppdatering: {info['error']}", "info")
+            return
+        if not info.get("behind"):
+            await toast(f"Redan senaste versionen ({info.get('commit')})", "check")
+            return
+        ok, msg = await updater.start()
+        if ok:
+            await toast(f"Uppdaterar {info['commit']} → {info['remote']}, startar om strax", "reload")
+        else:
+            await toast(f"Kunde inte starta uppdatering: {msg}", "info")
+
     async def on_command(msg: dict) -> None:
         if msg.get("type") == "cec":
             await dispatcher.cec_command(str(msg.get("command")))
         elif msg.get("type") == "key":
             vinput.tap(str(msg.get("key")), msg.get("modifiers"))
+        elif msg.get("type") == "update":
+            asyncio.create_task(update_from_menu())
         else:
             log.debug("unknown command %s", msg)
 
@@ -55,8 +76,9 @@ async def amain(cfg: dict) -> None:
         async with status_lock:
             if not force and last_status and time.monotonic() - status_at < 3:
                 return last_status
-            wifi, ts, ifaces, sysstat = await asyncio.gather(
-                sysinfo.wifi_status(), sysinfo.tailscale_status(plex_url()), sysinfo.interfaces(), sysinfo.system_status()
+            wifi, ts, ifaces, sysstat, ver = await asyncio.gather(
+                sysinfo.wifi_status(), sysinfo.tailscale_status(plex_url()), sysinfo.interfaces(), sysinfo.system_status(),
+                updater.version(),
             )
             batteries = sysinfo.gamepad_batteries()
             pads = [{"name": p.dev.name, "path": p.dev.path, "battery": batteries.get(p.dev.name)} for p in pads_mgr.pads()]
@@ -71,6 +93,7 @@ async def amain(cfg: dict) -> None:
                 "keyboard_present": pads_mgr.keyboard_present,
                 "cec": {"enabled": cec.enabled, "phys_addr": cec.phys_addr, "tv_power": cec.last_power},
                 "version": __version__,
+                "git": ver,
                 "page": server.current_url,
             })
             status_at = time.monotonic()
@@ -92,9 +115,10 @@ async def amain(cfg: dict) -> None:
             "restart_daemon": ["systemctl", "restart", "pioneer-tv-daemon"],
             "reboot": ["systemctl", "reboot"],
             "shutdown": ["systemctl", "poweroff"],
-            "update": ["/bin/bash", "-c", "REPO=$(cat /etc/pioneer-tv/repo) && git -C \"$REPO\" pull --ff-only && \"$REPO/system/install.sh\""],
             "tailscale_up": ["tailscale", "up"],
         }
+        if name == "update":
+            return await updater.start()
         if name not in commands:
             return False, "unknown action"
         log.info("system action: %s", name)

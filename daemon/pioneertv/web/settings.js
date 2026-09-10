@@ -51,7 +51,7 @@
       gamepads: [{ name: 'Wireless Controller', battery: 65 }, { name: '8BitDo Pro 2', battery: null }],
       keyboard_present: false,
       cec: { enabled: true, phys_addr: '1.0.0.0', tv_power: 'on' },
-      version: '0.1.0', page: 'https://www.svtplay.se/',
+      version: '0.1.0', git: { available: true, commit: '1a2b3c4', branch: 'main', date: '2026-09-10' }, page: 'https://www.svtplay.se/',
     });
     if (path === '/api/settings' && method === 'GET') return wait({
       sections: [
@@ -77,6 +77,10 @@
       { mac: 'AA:BB:CC:DD:EE:01', name: 'Wireless Controller', connected: true, paired: true, trusted: true, battery: 65, icon: 'input-gaming' },
       { mac: 'AA:BB:CC:DD:EE:02', name: '8BitDo Pro 2', connected: false, paired: true, trusted: true, battery: null, icon: 'input-gaming' },
       { mac: 'AA:BB:CC:DD:EE:03', name: 'Xbox Wireless Controller', connected: false, paired: false, trusted: false, battery: null, icon: 'input-gaming' } ], path.includes('scan') ? 2000 : 300);
+    if (path === '/api/update/status') return wait({ running: false, log: '[update] repo /home/pi/pioneer-tv, branch main, at 1a2b3c4\n[update] already up to date (1a2b3c4)', last: { status: 'ok', message: 'already up to date', from: '1a2b3c4', to: '1a2b3c4', time: Date.now() / 1000 - 3600 } });
+    if (path.startsWith('/api/update') && method === 'GET') return wait({ available: true, repo: '/home/pi/pioneer-tv', commit: '1a2b3c4', branch: 'main', date: '2026-09-10', subject: 'Soften the paper design', remote: '5d6e7f8', behind: 2, dirty: false,
+      commits: ['5d6e7f8 2026-09-11 Add update button to menus', '9a8b7c6 2026-09-11 Fix CEC monitor parsing'] }, 1200);
+    if (path === '/api/update' && method === 'POST') return wait({ ok: true, message: 'Running as unit: pioneer-tv-update.service' });
     if (path === '/api/logs') return wait('2026-09-10T07:00:01 pioneertv INFO pioneertv 0.1.0\n2026-09-10T07:00:02 pioneertv.cec INFO CEC registered as playback device\n');
     return wait({ ok: true, message: 'mock' });
   }
@@ -247,14 +251,65 @@
 
     async system(show) {
       const logs = h('pre', { class: 'log' }, 'Hämtar…');
-      const unit = h('select', { onchange: () => loadLogs() }, ['pioneer-tv-daemon', 'pioneer-tv-weston', 'bluetooth', 'NetworkManager', 'tailscaled'].map((u) => h('option', { value: u }, u)));
+      const unit = h('select', { onchange: () => loadLogs() }, ['pioneer-tv-daemon', 'pioneer-tv-weston', 'pioneer-tv-update', 'bluetooth', 'NetworkManager', 'tailscaled'].map((u) => h('option', { value: u }, u)));
       const loadLogs = async () => { logs.textContent = await api('GET', `/api/logs?unit=${unit.value}&lines=150`); logs.scrollTop = logs.scrollHeight; };
+      // ---- update from the git repo
+      const upd = h('div', { class: 'card pioneertv-card update' });
+      let pollTimer = null;
+      let lastInfo = null;
+      const drawUpdate = (info, st) => {
+        clearTimeout(pollTimer);
+        const running = st && st.running;
+        const rows = [h('h3', {}, 'Programvara')];
+        if (!info || info.available === false) {
+          rows.push(h('p', { class: 'muted' }, (info && info.error) || 'Ingen git-utcheckning hittad. Installera med system/install.sh från ett klonat repo.'));
+        } else {
+          rows.push(h('div', { class: 'big' }, `Version ${info.commit}`, h('span', { class: 'hint' }, ` · ${info.branch} · ${info.date}`)));
+          rows.push(h('p', { class: 'muted' }, info.subject));
+          if (info.error) rows.push(h('p', { class: 'muted' }, dot('bad'), info.error));
+          else if (info.behind > 0) {
+            rows.push(h('p', {}, dot('warn'), `${info.behind} ${info.behind === 1 ? 'ny ändring' : 'nya ändringar'} på GitHub:`));
+            rows.push(h('ul', { class: 'commits' }, info.commits.map((c) => h('li', {}, c))));
+          } else if (info.remote) rows.push(h('p', {}, dot('ok'), 'Senaste versionen.'));
+          if (info.dirty) rows.push(h('p', { class: 'muted' }, 'Lokala ändringar i repot; uppdateringen kräver en ren utcheckning.'));
+        }
+        if (st && st.last) {
+          const d = new Date(st.last.time * 1000);
+          rows.push(h('p', { class: 'hint' }, `Senaste körning ${d.toLocaleString('sv-SE')}: ${st.last.message} (${st.last.status})`));
+        }
+        rows.push(h('div', { class: 'actions' },
+          h('button', { class: 'small', disabled: running ? '' : null, onclick: () => refreshUpdate(true) }, 'Sök efter uppdatering'),
+          h('button', { class: 'small primary', disabled: running || !(info && info.behind > 0) ? '' : null, onclick: () => startUpdate() }, running ? 'Uppdaterar…' : 'Installera uppdatering'),
+          confirmBtn('Installera om ändå', 'small', () => startUpdate(true))));
+        if (st && (running || st.log)) {
+          const pre = h('pre', { class: 'log small' }, st.log || '');
+          rows.push(pre);
+          pre.scrollTop = pre.scrollHeight;
+        }
+        upd.replaceChildren(...rows);
+        if (running) pollTimer = setTimeout(async () => drawUpdate(info, await api('GET', '/api/update/status').catch(() => ({ running: true, log: 'Daemonen startar om…' }))), 2000);
+      };
+      const refreshUpdate = async (fetch) => {
+        upd.replaceChildren(h('h3', {}, 'Programvara'), h('p', { class: 'muted spin' }, fetch ? 'Hämtar från GitHub…' : 'Läser version…'));
+        try {
+          const [info, st] = await Promise.all([api('GET', `/api/update?fetch=${fetch ? 1 : 0}`), api('GET', '/api/update/status')]);
+          lastInfo = info;
+          drawUpdate(info, st);
+        } catch (e) { drawUpdate({ available: false, error: e.message }, null); }
+      };
+      const startUpdate = async (force) => {
+        try { await api('POST', '/api/update', { force: !!force }); toast('Uppdatering startad'); }
+        catch (e) { toast(`Misslyckades: ${e.message}`); return; }
+        drawUpdate(lastInfo, { running: true, log: 'Startar…' });
+      };
+
       show(
         h('h1', {}, 'System'),
+        upd,
+        h('h2', {}, 'Åtgärder'),
         h('div', { class: 'actions' },
           h('button', { onclick: () => sysAction('restart_ui') }, 'Starta om Chromium'),
           h('button', { onclick: () => sysAction('restart_daemon') }, 'Starta om daemon'),
-          h('button', { onclick: () => sysAction('update') }, 'Uppdatera från git'),
           confirmBtn('Starta om Pi', 'danger', () => sysAction('reboot')),
           confirmBtn('Stäng av Pi', 'danger', () => sysAction('shutdown'))),
         h('h2', {}, 'Loggar'),
@@ -262,6 +317,7 @@
         logs,
       );
       loadLogs();
+      refreshUpdate(false);
     },
   };
 
@@ -306,5 +362,5 @@
   }
   window.addEventListener('hashchange', route);
   route();
-  api('GET', '/api/status').then((s) => { $('#foot').textContent = `Maskinrepubliken · ${s.system.hostname} · v${s.version}${MOCK ? ' · mock' : ''}`; }).catch(() => {});
+  api('GET', '/api/status').then((s) => { $('#foot').textContent = `Maskinrepubliken · ${s.system.hostname} · ${s.git && s.git.commit ? s.git.commit : 'v' + s.version}${MOCK ? ' · mock' : ''}`; }).catch(() => {});
 })();

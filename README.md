@@ -84,6 +84,19 @@ devices, with Tailscale doing the authentication. If you instead bind the daemon
 to `0.0.0.0` in `config.toml`, set an access key under Fjärråtkomst; non-local
 requests must then carry it (`?token=` once, stored as a cookie).
 
+## Updating the box
+
+Start → Meny → **Uppdatera systemet** checks GitHub and, only if there is
+something new, pulls it, reinstalls and restarts the daemon and Chromium. The
+screen goes blank for a few seconds. If nothing is new it just says so. The
+System page in settings shows the installed commit, lists the incoming commits,
+has an install button with a live log, and a "reinstall anyway" for when the
+Pi is up to date but broken. The update runs as its own systemd unit
+(`pioneer-tv-update`), so it survives restarting the daemon that started it;
+its log is under Loggar. The installer records the clone path in
+`/etc/pioneer-tv/repo`, so keep the clone you installed from, and keep it on the
+branch you want to follow.
+
 ## Gamepad mapping
 
 | Button | Action |
