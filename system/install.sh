@@ -63,10 +63,19 @@ echo "== groups"
 usermod -aG video,render,input,audio "$USER_NAME"
 
 echo "== kernel / firmware"
-grep -q '^dtoverlay=vc4-kms-v3d' "$BOOT/config.txt" || echo 'dtoverlay=vc4-kms-v3d' >> "$BOOT/config.txt"
-grep -q '^disable_overscan=1' "$BOOT/config.txt" || echo 'disable_overscan=1' >> "$BOOT/config.txt"
-if ! grep -q 'video=HDMI-A-1' "$BOOT/cmdline.txt"; then
-  sed -i '1 s/$/ video=HDMI-A-1:1280x720@60D/' "$BOOT/cmdline.txt"
+# The FAT boot partition ends up read-only after an unclean shutdown.
+mount -o remount,rw "$BOOT" 2>/dev/null || true
+if touch "$BOOT/.pioneer-tv-write-test" 2>/dev/null; then
+  rm -f "$BOOT/.pioneer-tv-write-test"
+  grep -q '^dtoverlay=vc4-kms-v3d' "$BOOT/config.txt" || echo 'dtoverlay=vc4-kms-v3d' >> "$BOOT/config.txt"
+  grep -q '^disable_overscan=1' "$BOOT/config.txt" || echo 'disable_overscan=1' >> "$BOOT/config.txt"
+  if ! grep -q 'video=HDMI-A-1' "$BOOT/cmdline.txt"; then
+    sed -i '1 s/$/ video=HDMI-A-1:1280x720@60D/' "$BOOT/cmdline.txt"
+  fi
+else
+  echo "warning: $BOOT is not writable (read-only after an unclean shutdown?)." >&2
+  echo "  Repair with: sudo umount $BOOT && sudo fsck.fat -a $(findmnt -n -o SOURCE "$BOOT" || echo /dev/mmcblk0p1) && sudo mount $BOOT" >&2
+  echo "  Skipping config.txt/cmdline.txt (720p mode); rerun the installer afterwards." >&2
 fi
 # Bluetooth: Xbox controllers need ERTM off to pair.
 echo 'options bluetooth disable_ertm=1' > /etc/modprobe.d/pioneer-tv-bluetooth.conf
