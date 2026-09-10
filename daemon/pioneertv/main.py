@@ -134,6 +134,9 @@ async def amain(cfg: dict) -> None:
         "last_status": lambda: last_status or None,
         "system_action": system_action,
         "cec": dispatcher.cec_command,
+        "cec_trace": cec.trace_text,
+        "cec_topology": cec.topology,
+        "cec_raw": cec.raw,
         "config_changed": config_changed,
     })
 

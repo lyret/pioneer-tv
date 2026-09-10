@@ -158,9 +158,30 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     case 'daemon':
       send(msg.payload);
       break;
+    case 'api':
+      apiProxy(msg).then(reply);
+      return true; // async reply
   }
   return false;
 });
+
+// HTTP proxy to the daemon for content scripts on https pages.
+async function apiProxy(msg) {
+  const base = (config && config.settings_url) ? config.settings_url.replace(/\/$/, '') : 'http://127.0.0.1:8765';
+  try {
+    const r = await fetch(base + msg.path, {
+      method: msg.method || 'GET',
+      headers: msg.body ? { 'Content-Type': 'application/json' } : {},
+      body: msg.body ? JSON.stringify(msg.body) : undefined,
+    });
+    const ct = r.headers.get('content-type') || '';
+    const data = ct.includes('json') ? await r.json() : await r.text();
+    if (!r.ok) return { ok: false, error: (data && data.error) || String(r.status) };
+    return { ok: true, data };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
 
 // ---------------------------------------------------------------- dev shortcuts
 

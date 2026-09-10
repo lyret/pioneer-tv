@@ -6,8 +6,10 @@ remote-control presses, so the TV's own speakers (or its ARC receiver) react.
 from __future__ import annotations
 
 import asyncio
+import collections
 import logging
 import re
+import time
 from typing import Callable, Coroutine
 
 log = logging.getLogger("pioneertv.cec")
@@ -27,6 +29,16 @@ class Cec:
         self.on_event = on_event
         self.phys_addr = "1.0.0.0"
         self._lock = asyncio.Lock()
+        # Everything we send and receive, for the debug views.
+        self.trace: collections.deque[str] = collections.deque(maxlen=400)
+
+    def _t(self, direction: str, text: str) -> None:
+        stamp = time.strftime("%H:%M:%S")
+        for line in text.strip().splitlines() or [""]:
+            self.trace.append(f"{stamp} {direction} {line}")
+
+    def trace_text(self) -> str:
+        return "\n".join(self.trace)
 
     @property
     def enabled(self) -> bool:
@@ -47,6 +59,9 @@ class Cec:
                 raise RuntimeError(f"cec-ctl timed out: {' '.join(args)}")
         text = out.decode(errors="replace")
         log.debug("cec-ctl %s -> rc=%s %s", " ".join(args), proc.returncode, text.strip()[:200])
+        self._t(">>", "cec-ctl " + " ".join(args))
+        if text.strip():
+            self._t("  ", text.strip()[-600:])
         return text
 
     async def setup(self) -> None:
@@ -65,6 +80,19 @@ class Cec:
 
     async def to_tv(self, *args: str) -> str:
         return await self._ctl("--to", self.tv, *args)
+
+    async def topology(self) -> str:
+        """Bus overview: our address, the TV, other devices (cec-ctl -S)."""
+        if not self._available:
+            return "cec-ctl not available"
+        return await self._ctl("-S", timeout=10)
+
+    async def raw(self, args: list[str]) -> str:
+        """Run cec-ctl with arbitrary options from the debug page."""
+        clean = [a for a in args if isinstance(a, str) and a.strip()]
+        if not clean or not all(a.startswith("-") or "=" in a or a.replace(".", "").isalnum() for a in clean):
+            raise ValueError("only cec-ctl options are allowed")
+        return await self._ctl(*clean, timeout=10)
 
     async def user_control(self, ui_cmd: str) -> None:
         await self.to_tv("--user-control-pressed", f"ui-cmd={ui_cmd}")
@@ -125,6 +153,8 @@ class Cec:
                     if not raw:
                         break
                     line = raw.decode(errors="replace").strip()
+                    if line:
+                        self._t("<<", line)
                     upper = line.upper()
                     if "STANDBY" in upper and "RECEIVED" in upper:
                         self.last_power = "standby"

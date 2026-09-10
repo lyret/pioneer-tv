@@ -32,6 +32,7 @@ window.PioneerTV = window.PioneerTV || {};
           { label: 'Inställningar', icon: 'gear', run: () => b.settings() },
           { label: 'Tangentbord', icon: 'keyboard', run: () => M.keyboard.toggle() },
           { label: 'Tillbaka', icon: 'back', run: () => (b.available ? b.send({ type: 'back' }) : history.back()) },
+          { label: 'Loggar', icon: 'menu', run: () => M.logs.open() },
           { label: 'Ladda om sidan', icon: 'reload', run: () => location.reload() },
           { label: 'Uppdatera systemet', icon: 'gear', run: () => b.daemon({ type: 'update' }), keep: true, disabled: !tv },
           { label: 'Volym +', icon: 'volume', run: () => b.cec('volume_up'), keep: true, disabled: !tv },

@@ -10,8 +10,10 @@
   const b = M.bridge;
   b.on('keyboard', () => M.keyboard.toggle());
   b.on('menu', () => M.hud.menu.toggle());
+  b.on('logs', () => M.logs.toggle());
   b.on('escape', () => {
     if (M.hud.menu.isOpen()) M.hud.menu.close();
+    else if (M.logs.isOpen()) M.logs.close();
     else if (M.keyboard.isOpen()) M.keyboard.close();
   });
   b.on('volume', (e) => M.hud.toast(e.direction === 'up' ? 'Volym +' : e.direction === 'down' ? 'Volym −' : 'Ljud av', e.direction === 'mute' ? 'mute' : 'volume'));

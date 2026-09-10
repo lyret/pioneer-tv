@@ -22,6 +22,7 @@
         "content/spatial-nav.js",
         "content/keyboard.js",
         "content/hud.js",
+        "content/logs.js",
         "content/main.js"
       ],
       "css": [
@@ -64,5 +65,9 @@
   ],
   "icons": {
     "128": "icons/icon128.png"
-  }
+  },
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ]
 }

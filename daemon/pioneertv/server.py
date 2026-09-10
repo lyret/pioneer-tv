@@ -11,6 +11,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Any, Callable, Coroutine
+from urllib.parse import urlparse
 
 from aiohttp import WSMsgType, web
 
@@ -49,6 +50,9 @@ class Server:
             ("POST", "/api/bluetooth/pair", self.api_bt_pair),
             ("POST", "/api/bluetooth/{action}", self.api_bt_action),
             ("POST", "/api/cec", self.api_cec),
+            ("GET", "/api/cec/trace", self.api_cec_trace),
+            ("GET", "/api/cec/topology", self.api_cec_topology),
+            ("POST", "/api/cec/raw", self.api_cec_raw),
             ("POST", "/api/system", self.api_system),
             ("GET", "/api/logs", self.api_logs),
             ("GET", "/api/update", self.api_update_check),
@@ -61,6 +65,16 @@ class Server:
     # ------------------------------------------------------------ auth
     @web.middleware
     async def auth_middleware(self, request: web.Request, handler):
+        # The kiosk shows third-party sites on the same machine as this API.
+        # A page could POST here cross-origin, so state changes must come
+        # from our own pages, the extension, or a non-browser client.
+        if request.method not in ("GET", "HEAD", "OPTIONS"):
+            origin = request.headers.get("Origin")
+            if origin and not origin.startswith("chrome-extension://"):
+                # Behind `tailscale serve` the scheme differs and the host may be forwarded.
+                own_hosts = {request.host, request.headers.get("X-Forwarded-Host", "")}
+                if urlparse(origin).netloc not in own_hosts:
+                    return web.json_response({"error": "cross-origin request refused"}, status=403)
         token = (self.cfg.get("remote") or {}).get("token") or ""
         peer = request.remote or ""
         if token and peer not in LOCAL_PEERS:
@@ -193,6 +207,23 @@ class Server:
         except Exception as exc:
             return web.json_response({"ok": False, "message": str(exc)}, status=400)
         return web.json_response({"ok": True})
+
+    async def api_cec_trace(self, request: web.Request) -> web.Response:
+        return web.Response(text=self.hooks["cec_trace"](), content_type="text/plain")
+
+    async def api_cec_topology(self, request: web.Request) -> web.Response:
+        return web.Response(text=await self.hooks["cec_topology"](), content_type="text/plain")
+
+    async def api_cec_raw(self, request: web.Request) -> web.Response:
+        data = await self._json(request)
+        args = data.get("args")
+        if isinstance(args, str):
+            args = args.split()
+        try:
+            out = await self.hooks["cec_raw"](list(args or []))
+        except Exception as exc:
+            return web.json_response({"ok": False, "message": str(exc)}, status=400)
+        return web.json_response({"ok": True, "output": out})
 
     async def api_system(self, request: web.Request) -> web.Response:
         data = await self._json(request)

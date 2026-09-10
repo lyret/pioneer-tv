@@ -88,6 +88,20 @@ devices, with Tailscale doing the authentication. If you instead bind the daemon
 to `0.0.0.0` in `config.toml`, set an access key under Fjärråtkomst; non-local
 requests must then carry it (`?token=` once, stored as a cookie).
 
+## Logs and CEC debugging
+
+Start → Meny → **Loggar** opens a log sheet over whatever is on screen. Left
+and right switch between the daemon, the display, the updater, Bluetooth,
+NetworkManager, Tailscale and the CEC trace; up and down scroll; A refreshes.
+The daemon and CEC tabs follow live. The CEC trace shows every command the
+daemon sends (`>>`) and everything it hears on the bus (`<<`), so a TV remote
+press that does nothing can be traced to either "never arrived" or "arrived
+but is not mapped".
+
+The TV page in settings has the same trace, the bus topology from `cec-ctl -S`
+(the Pi should appear as a Playback Device and the TV as logical address 0),
+test buttons, and a box for raw `cec-ctl` arguments.
+
 ## Updating the box
 
 Start → Meny → **Uppdatera systemet** checks GitHub and, only if there is

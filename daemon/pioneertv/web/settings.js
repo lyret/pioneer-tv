@@ -81,6 +81,9 @@
     if (path.startsWith('/api/update') && method === 'GET') return wait({ available: true, repo: '/home/pi/pioneer-tv', commit: '1a2b3c4', branch: 'main', date: '2026-09-10', subject: 'Soften the paper design', remote: '5d6e7f8', behind: 2, dirty: false,
       commits: ['5d6e7f8 2026-09-11 Add update button to menus', '9a8b7c6 2026-09-11 Fix CEC monitor parsing'] }, 1200);
     if (path === '/api/update' && method === 'POST') return wait({ ok: true, message: 'Running as unit: pioneer-tv-update.service' });
+    if (path === '/api/cec/topology') return wait('Driver Info:\n\tDriver Name                : vc4_hdmi\n\tPhysical Address           : 1.0.0.0\n\tLogical Address            : 4 (Playback Device 1)\n\nTopology:\n\tSystem Information for device 0 (TV):\n\t\tVendor ID: 0x00e091 (LG)\n\t\tPower Status: On');
+    if (path === '/api/cec/trace') return wait('09:20:01 >> cec-ctl --to 0 --user-control-pressed ui-cmd=volume-up\n09:20:01 >> cec-ctl --to 0 --user-control-released\n09:20:07 << Received from TV to Playback Device 1 (0 to 4): USER_CONTROL_PRESSED (0x44):\n09:20:07 <<     ui-cmd: up (0x01)\n09:20:07 << Received from TV to Playback Device 1 (0 to 4): USER_CONTROL_RELEASED (0x45)');
+    if (path === '/api/cec/raw') return wait({ ok: true, output: 'Transmit from Playback Device 1 to TV (4 to 0):\n\tGIVE_DEVICE_POWER_STATUS (0x8f)\n    Received from TV (0):\n\tREPORT_POWER_STATUS (0x90):\n\t\tpwr-state: on (0x00)' }, 400);
     if (path.startsWith('/api/logs')) return wait('2026-09-10T07:00:01 pioneertv INFO pioneertv 0.1.0\n2026-09-10T07:00:02 pioneertv.cec INFO CEC registered as playback device\n');
     return wait({ ok: true, message: 'mock' });
   }
@@ -233,10 +236,50 @@
 
     async controls(show) { return schemaView(show, 'controls', 'Kontroller', h('p', { class: 'muted' }, 'Fullständig knappmappning finns i /etc/pioneer-tv/config.toml.')); },
     async tv(show) {
-      return schemaView(show, 'tv', 'TV', h('div', { class: 'actions' },
-        h('button', { onclick: () => cec('tv_on') }, 'TV på'), h('button', { onclick: () => cec('tv_off') }, 'TV av'),
-        h('button', { onclick: () => cec('volume_up') }, 'Volym +'), h('button', { onclick: () => cec('volume_down') }, 'Volym −'),
-        h('button', { onclick: () => cec('active_source') }, 'Byt till Pi-ingången')));
+      const topo = h('pre', { class: 'log small' }, 'Hämtar…');
+      const trace = h('pre', { class: 'log small' }, 'Hämtar…');
+      const rawIn = h('input', { type: 'text', placeholder: '--to 0 --give-device-power-status', style: 'min-width:360px' });
+      const rawOut = h('pre', { class: 'log small' });
+      rawOut.hidden = true;
+      let traceTimer = null;
+      const loadTopo = async () => { topo.textContent = await api('GET', '/api/cec/topology').catch((e) => `Fel: ${e.message}`); };
+      const loadTrace = async () => {
+        clearTimeout(traceTimer);
+        if (!trace.isConnected) return;
+        trace.textContent = (await api('GET', '/api/cec/trace').catch((e) => `Fel: ${e.message}`)) || '(inget ännu)';
+        trace.scrollTop = trace.scrollHeight;
+        traceTimer = setTimeout(loadTrace, 2000);
+      };
+      const runRaw = async () => {
+        rawOut.hidden = false; rawOut.textContent = 'Kör…';
+        try { const r = await api('POST', '/api/cec/raw', { args: rawIn.value }); rawOut.textContent = r.output || '(inget svar)'; }
+        catch (e) { rawOut.textContent = `Fel: ${e.message}`; }
+        loadTrace();
+      };
+      rawIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') runRaw(); });
+      const debug = h('div', {},
+        h('h2', {}, 'Testa'),
+        h('div', { class: 'actions' },
+          h('button', { onclick: () => cec('tv_on') }, 'TV på'), h('button', { onclick: () => cec('tv_off') }, 'TV av'),
+          h('button', { onclick: () => cec('volume_up') }, 'Volym +'), h('button', { onclick: () => cec('volume_down') }, 'Volym −'),
+          h('button', { onclick: () => cec('mute') }, 'Ljud av'),
+          h('button', { onclick: () => cec('active_source') }, 'Byt till Pi-ingången'),
+          h('button', { onclick: async () => { rawIn.value = '--to 0 --give-device-power-status'; runRaw(); } }, 'Fråga TV om ström')),
+        h('h2', {}, 'Felsökning'),
+        h('p', { class: 'muted' }, 'Bussen enligt cec-ctl. Pi:n ska stå som Playback Device och TV:n som logisk adress 0. Tryck på TV:ns fjärrkontroll och se om tryckningarna dyker upp i spåret nedan.'),
+        h('div', { class: 'actions' }, h('button', { class: 'small', onclick: loadTopo }, 'Läs om topologin')),
+        topo,
+        h('h2', {}, 'Rått kommando'),
+        h('p', { class: 'muted' }, 'Argument till cec-ctl (enheten läggs till automatiskt). Exempel: ', h('code', {}, '--to 0 --image-view-on'), ', ', h('code', {}, '--to 0 --user-control-pressed ui-cmd=volume-up'), '.'),
+        h('div', { class: 'inline-form' }, rawIn, h('button', { class: 'small primary', onclick: runRaw }, 'Kör')),
+        rawOut,
+        h('h2', {}, 'CEC-spår'),
+        h('p', { class: 'muted' }, '>> skickat av daemonen, << mottaget från bussen. Uppdateras varannan sekund.'),
+        trace,
+      );
+      await schemaView(show, 'tv', 'TV', debug);
+      loadTopo();
+      loadTrace();
     },
     async remote(show) {
       const s = await api('GET', '/api/status');

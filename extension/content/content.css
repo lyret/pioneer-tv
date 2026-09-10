@@ -63,6 +63,31 @@ html.pioneertv-keyboard-open { scroll-padding-bottom: 320px; }
 .pioneertv-toast-show { opacity: 1; visibility: visible; }
 .pioneertv-toast-icon { display: inline-flex; font-size: 22px; }
 
+/* ---- log viewer ---- */
+.pioneertv-logs {
+  position: fixed; inset: 0; z-index: 2147483002;
+  background-image: var(--pioneertv-dither-light); background-size: 4px 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: "EB Garamond", Georgia, serif; color: #2b2419;
+}
+.pioneertv-logs-sheet {
+  width: min(92vw, 1100px); height: 84vh; padding: 20px 24px 14px;
+  background-color: #f4edda; background-image: var(--pioneertv-grain); background-size: 12px 12px;
+  border: 1px solid #b9ad90; box-shadow: 6px 6px 0 #d9cdaa;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.pioneertv-logs-head { display: flex; align-items: baseline; gap: 22px; border-bottom: 1px solid #b9ad90; padding-bottom: 8px; }
+.pioneertv-logs-title { font-size: 26px; font-weight: 600; }
+.pioneertv-logs-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.pioneertv-logs-tab { padding: 4px 10px 2px; font: 700 11px "Silkscreen", monospace; letter-spacing: 0.05em; text-transform: uppercase; color: #6f6350; cursor: pointer; border: 1px solid transparent; }
+.pioneertv-logs-tab-active { background: #2b2419; color: #f4edda; box-shadow: 3px 3px 0 #d9cdaa; }
+.pioneertv-logs-body {
+  flex: 1; margin: 0; overflow: auto; padding: 12px 14px;
+  background: #ebe2c8; border: 1px solid #b9ad90;
+  font: 13px/1.5 "Courier New", Courier, monospace; color: #2b2419; white-space: pre-wrap; word-break: break-word;
+}
+.pioneertv-logs .pioneertv-keyhint .pioneertv-icon { font-size: 11px; }
+
 /* ---- quick menu ---- */
 .pioneertv-menu {
   position: fixed; inset: 0; z-index: 2147483002;

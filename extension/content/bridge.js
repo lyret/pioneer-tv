@@ -39,6 +39,19 @@ window.PioneerTV = window.PioneerTV || {};
       if (hasExt) this.send({ type: 'settings' });
       else location.href = 'http://127.0.0.1:8765/';
     },
+    // Call the daemon's HTTP API. Pages on https cannot fetch localhost
+    // themselves, so the background worker does it for them.
+    async api(method, path, body) {
+      if (hasExt) {
+        const res = await chrome.runtime.sendMessage({ type: 'api', method, path, body });
+        if (!res || !res.ok) throw new Error((res && res.error) || 'no response');
+        return res.data;
+      }
+      const r = await fetch('http://127.0.0.1:8765' + path, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
+      if (!r.ok) throw new Error(String(r.status));
+      const ct = r.headers.get('content-type') || '';
+      return ct.includes('json') ? r.json() : r.text();
+    },
     // Should Enter in a text field pop the on-screen keyboard?
     autoKeyboard() {
       if (!this.state.tvMode || this.state.physicalKeyboard) return false;
