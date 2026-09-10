@@ -10,6 +10,18 @@ HOME_DIR=$(getent passwd "$USER_NAME" | cut -d: -f6)
 BOOT=/boot/firmware
 [ -d "$BOOT" ] || BOOT=/boot
 
+echo "== preflight"
+FREE_MB=$(df -Pm / | awk 'NR==2 {print $4}')
+ROOT_DEV=$(findmnt -n -o SOURCE / || true)
+if [ "$FREE_MB" -lt 1500 ] && [ "${PIONEER_TV_SKIP_APT:-0}" != "1" ]; then
+  echo "Only ${FREE_MB} MB free on / (${ROOT_DEV}); the packages need about 1.5 GB." >&2
+  echo "If the root filesystem was never expanded, run:" >&2
+  echo "  sudo raspi-config nonint do_expand_rootfs && sudo reboot" >&2
+  echo "Otherwise free space with: sudo apt-get clean; sudo journalctl --vacuum-size=50M" >&2
+  echo "Set PIONEER_TV_IGNORE_SPACE=1 to try anyway." >&2
+  [ "${PIONEER_TV_IGNORE_SPACE:-0}" = "1" ] || exit 1
+fi
+
 if [ "${PIONEER_TV_SKIP_APT:-0}" != "1" ]; then
 echo "== packages"
 export DEBIAN_FRONTEND=noninteractive
