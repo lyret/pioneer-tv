@@ -160,10 +160,13 @@ bluetoothctl
   connect <MAC>
 ```
 
-If `bluetoothctl` says "No default controller available", the onboard chip is
-not attached: `sudo systemctl enable --now hciuart bluetooth`, `rfkill unblock
-bluetooth`, and make sure `pi-bluetooth` is installed and `dtoverlay=disable-bt`
-is not in config.txt.
+If `bluetoothctl` says "No default controller available", the kernel did not
+bring up the onboard chip. On Bookworm the kernel attaches it itself (the old
+`hciuart` service is not used and fails by design). Check `dmesg | grep -i bcm`:
+no output means the chip did not enumerate, which a real power cycle usually
+fixes after an unclean shutdown; a firmware error means
+`sudo apt install --reinstall bluez-firmware firmware-brcm80211`. Make sure
+`dtoverlay=disable-bt` is not in config.txt, and `rfkill unblock bluetooth`.
 
 Tailscale is optional: `curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up`.
 

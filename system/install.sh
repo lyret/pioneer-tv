@@ -38,8 +38,9 @@ apt-get install -y --no-install-recommends \
 apt-get install -y --no-install-recommends chromium-browser \
   || apt-get install -y --no-install-recommends chromium
 # Nice to have; not present on every image.
-# pi-bluetooth attaches the onboard Bluetooth chip (hciuart) on Pi 3/4/Zero.
-for p in pi-bluetooth libwidevinecdm0 zram-tools fonts-noto-color-emoji; do
+# bluez-firmware carries the onboard chip's patch file; the kernel (hci_bcm)
+# attaches the chip itself on Bookworm, no hciuart service needed.
+for p in bluez-firmware firmware-brcm80211 libwidevinecdm0 zram-tools fonts-noto-color-emoji; do
   apt-get install -y --no-install-recommends "$p" || echo "warning: $p not available, continuing"
 done
 fi
@@ -94,7 +95,7 @@ systemctl daemon-reload
 systemctl disable getty@tty1.service || true
 systemctl set-default graphical.target
 systemctl enable seatd bluetooth pioneer-tv-governor.service
-systemctl enable hciuart 2>/dev/null || true
+systemctl disable hciuart 2>/dev/null || true   # legacy; fails on Bookworm's kernel-attached Bluetooth
 rfkill unblock bluetooth 2>/dev/null || true
 systemctl enable zramswap 2>/dev/null || true
 systemctl enable pioneer-tv-daemon.service pioneer-tv-weston.service
