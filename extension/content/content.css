@@ -1,6 +1,6 @@
-/* Magic TV overlays. Everything is namespaced with magictv- and sits above the page. */
+/* Pioneer TV overlays. Everything is namespaced with pioneertv- and sits above the page. */
 
-.magictv-focus {
+.pioneertv-focus {
   outline: 4px solid #ffd166 !important;
   outline-offset: 3px !important;
   border-radius: 6px;
@@ -10,7 +10,7 @@
 }
 
 /* ---- keyboard ---- */
-.magictv-keyboard {
+.pioneertv-keyboard {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 2147483000;
   padding: 14px 18px 10px;
   background: rgba(14, 16, 24, 0.94);
@@ -20,20 +20,20 @@
   color: #fff;
   box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
 }
-html.magictv-keyboard-open { scroll-padding-bottom: 320px; }
-.magictv-keyrow { display: flex; gap: 8px; margin-bottom: 8px; }
-.magictv-key {
+html.pioneertv-keyboard-open { scroll-padding-bottom: 320px; }
+.pioneertv-keyrow { display: flex; gap: 8px; margin-bottom: 8px; }
+.pioneertv-key {
   height: 52px; font-size: 24px; line-height: 1; color: #fff;
   background: rgba(255,255,255,0.10); border: 2px solid transparent; border-radius: 10px;
   cursor: pointer; padding: 0; font-family: inherit;
 }
-.magictv-key:hover { background: rgba(255,255,255,0.16); }
-.magictv-key-accent { background: #3a86ff; }
-.magictv-key-active { background: #ffd166 !important; color: #111; border-color: #fff; transform: scale(1.06); }
-.magictv-keyhint { font-size: 14px; opacity: 0.55; text-align: right; }
+.pioneertv-key:hover { background: rgba(255,255,255,0.16); }
+.pioneertv-key-accent { background: #3a86ff; }
+.pioneertv-key-active { background: #ffd166 !important; color: #111; border-color: #fff; transform: scale(1.06); }
+.pioneertv-keyhint { font-size: 14px; opacity: 0.55; text-align: right; }
 
 /* ---- toast ---- */
-.magictv-toast {
+.pioneertv-toast {
   position: fixed; top: 28px; right: 28px; z-index: 2147483001;
   display: flex; align-items: center; gap: 12px;
   padding: 14px 22px; border-radius: 14px;
@@ -43,33 +43,33 @@ html.magictv-keyboard-open { scroll-padding-bottom: 320px; }
   opacity: 0; transform: translateY(-10px); transition: opacity 160ms, transform 160ms;
   pointer-events: none;
 }
-.magictv-toast-show { opacity: 1; transform: none; }
-.magictv-toast-icon { font-size: 26px; }
+.pioneertv-toast-show { opacity: 1; transform: none; }
+.pioneertv-toast-icon { font-size: 26px; }
 
 /* ---- quick menu ---- */
-.magictv-menu {
+.pioneertv-menu {
   position: fixed; inset: 0; z-index: 2147483002;
   background: rgba(0,0,0,0.55);
   display: flex; align-items: center; justify-content: flex-end;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
-.magictv-menu-panel {
+.pioneertv-menu-panel {
   width: 340px; height: 100%; padding: 32px 24px;
   background: rgba(14, 16, 24, 0.97); color: #fff;
   box-shadow: -10px 0 40px rgba(0,0,0,0.5);
   display: flex; flex-direction: column; gap: 6px;
 }
-.magictv-menu-title { font-size: 28px; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.02em; }
-.magictv-menu-status { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 15px; color: rgba(255,255,255,0.8); }
-.magictv-menu-statusrow { display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.magictv-menu-statusrow .magictv-menu-icon { width: 22px; font-size: 15px; }
-.magictv-menu-dot { width: 8px; height: 8px; border-radius: 50%; background: #888; flex: none; }
-.magictv-menu-dot.ok { background: #4ade80; } .magictv-menu-dot.warn { background: #fb923c; } .magictv-menu-dot.bad { background: #f87171; }
-.magictv-menu-item {
+.pioneertv-menu-title { font-size: 28px; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.02em; }
+.pioneertv-menu-status { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 15px; color: rgba(255,255,255,0.8); }
+.pioneertv-menu-statusrow { display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pioneertv-menu-statusrow .pioneertv-menu-icon { width: 22px; font-size: 15px; }
+.pioneertv-menu-dot { width: 8px; height: 8px; border-radius: 50%; background: #888; flex: none; }
+.pioneertv-menu-dot.ok { background: #4ade80; } .pioneertv-menu-dot.warn { background: #fb923c; } .pioneertv-menu-dot.bad { background: #f87171; }
+.pioneertv-menu-item {
   display: flex; align-items: center; gap: 16px;
   padding: 14px 16px; border-radius: 12px; font-size: 22px; cursor: pointer;
 }
-.magictv-menu-icon { width: 34px; text-align: center; font-size: 24px; }
-.magictv-menu-active { background: #ffd166; color: #111; }
-.magictv-menu-disabled { opacity: 0.35; }
-.magictv-menu-panel .magictv-keyhint { margin-top: auto; }
+.pioneertv-menu-icon { width: 34px; text-align: center; font-size: 24px; }
+.pioneertv-menu-active { background: #ffd166; color: #111; }
+.pioneertv-menu-disabled { opacity: 0.35; }
+.pioneertv-menu-panel .pioneertv-keyhint { margin-top: auto; }

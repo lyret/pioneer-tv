@@ -11,7 +11,7 @@ import shutil
 import time
 from urllib.parse import urlparse
 
-log = logging.getLogger("magictv.sysinfo")
+log = logging.getLogger("pioneertv.sysinfo")
 
 
 async def run(*cmd: str, timeout: float = 8.0, stdin: str | None = None) -> tuple[int, str]:

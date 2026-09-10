@@ -1,8 +1,8 @@
 // Default services shown by the launcher when no daemon config is available
 // (design work on a laptop). On the Pi the daemon's config.toml wins.
 // `{query}` in search_url is replaced with the URL-encoded search string.
-window.MagicTV = window.MagicTV || {};
-window.MagicTV.defaultServices = [
+window.PioneerTV = window.PioneerTV || {};
+window.PioneerTV.defaultServices = [
   {
     id: 'cineasterna',
     name: 'Cineasterna',

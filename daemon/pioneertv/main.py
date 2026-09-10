@@ -14,7 +14,7 @@ from .gamepad import GamepadManager, MouseDriver
 from .server import Server
 from .virtual_input import VirtualInput
 
-log = logging.getLogger("magictv")
+log = logging.getLogger("pioneertv")
 
 STATUS_INTERVAL = 10.0
 
@@ -88,11 +88,11 @@ async def amain(cfg: dict) -> None:
     # ------------------------------------------------------------ hooks
     async def system_action(name: str) -> tuple[bool, str]:
         commands = {
-            "restart_ui": ["systemctl", "restart", "magic-tv-weston"],
-            "restart_daemon": ["systemctl", "restart", "magic-tv-daemon"],
+            "restart_ui": ["systemctl", "restart", "pioneer-tv-weston"],
+            "restart_daemon": ["systemctl", "restart", "pioneer-tv-daemon"],
             "reboot": ["systemctl", "reboot"],
             "shutdown": ["systemctl", "poweroff"],
-            "update": ["/bin/bash", "-c", "REPO=$(cat /etc/magic-tv/repo) && git -C \"$REPO\" pull --ff-only && \"$REPO/system/install.sh\""],
+            "update": ["/bin/bash", "-c", "REPO=$(cat /etc/pioneer-tv/repo) && git -C \"$REPO\" pull --ff-only && \"$REPO/system/install.sh\""],
             "tailscale_up": ["tailscale", "up"],
         }
         if name not in commands:
@@ -161,7 +161,7 @@ async def amain(cfg: dict) -> None:
 
 
 def run() -> None:
-    parser = argparse.ArgumentParser(prog="magictv", description="Magic TV daemon")
+    parser = argparse.ArgumentParser(prog="pioneertv", description="Pioneer TV daemon")
     parser.add_argument("-c", "--config", help="path to config.toml")
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument("--version", action="version", version=__version__)
@@ -171,5 +171,5 @@ def run() -> None:
     level = "debug" if args.verbose else cfg["daemon"]["log_level"]
     logging.basicConfig(level=getattr(logging, level.upper(), logging.INFO),
                         format="%(asctime)s %(name)s %(levelname)s %(message)s")
-    log.info("magictv %s, config %s", __version__, cfg["_path"] or "(defaults)")
+    log.info("pioneertv %s, config %s", __version__, cfg["_path"] or "(defaults)")
     asyncio.run(amain(cfg))

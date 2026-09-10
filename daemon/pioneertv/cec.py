@@ -10,7 +10,7 @@ import logging
 import re
 from typing import Callable, Coroutine
 
-log = logging.getLogger("magictv.cec")
+log = logging.getLogger("pioneertv.cec")
 
 RE_PHYS = re.compile(r"Physical Address\s*:\s*([0-9a-f.]+)", re.I)
 RE_POWER = re.compile(r"pwr-state:\s*(\S+)", re.I)

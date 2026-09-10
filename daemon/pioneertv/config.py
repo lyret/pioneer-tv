@@ -6,14 +6,14 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
-DEFAULT_PATHS = [Path("/etc/magic-tv/config.toml"), Path(__file__).resolve().parent.parent / "config.toml"]
+DEFAULT_PATHS = [Path("/etc/pioneer-tv/config.toml"), Path(__file__).resolve().parent.parent / "config.toml"]
 
 DEFAULTS: dict[str, Any] = {
     "daemon": {"host": "127.0.0.1", "port": 8765, "log_level": "info"},
     "cec": {
         "enabled": True,
         "device": "/dev/cec0",
-        "osd_name": "Magic TV",
+        "osd_name": "Pioneer TV",
         "tv_address": 0,
         "tv_on_gamepad_connect": True,
         "monitor": True,

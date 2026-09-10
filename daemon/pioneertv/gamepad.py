@@ -14,7 +14,7 @@ from evdev import ecodes as e
 
 from .actions import Dispatcher
 
-log = logging.getLogger("magictv.gamepad")
+log = logging.getLogger("pioneertv.gamepad")
 
 
 class Gamepad:
@@ -152,7 +152,7 @@ def is_gamepad(dev: evdev.InputDevice) -> bool:
 
 def is_keyboard(dev: evdev.InputDevice) -> bool:
     """A real keyboard: letters and Enter, and not one of our virtual devices."""
-    if dev.name.startswith("Magic TV"):
+    if dev.name.startswith("Pioneer TV"):
         return False
     keys = set(dev.capabilities().get(e.EV_KEY, []))
     return e.KEY_A in keys and e.KEY_Z in keys and e.KEY_ENTER in keys and e.BTN_SOUTH not in keys

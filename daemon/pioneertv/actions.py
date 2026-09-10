@@ -10,7 +10,7 @@ import logging
 import time
 from typing import Any, Callable, Coroutine
 
-log = logging.getLogger("magictv.actions")
+log = logging.getLogger("pioneertv.actions")
 
 Action = dict[str, Any]
 

@@ -1,13 +1,13 @@
 [Unit]
-Description=Magic TV daemon (gamepad, HDMI-CEC, extension bridge)
+Description=Pioneer TV daemon (gamepad, HDMI-CEC, extension bridge)
 After=bluetooth.service
 Wants=bluetooth.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 -m magictv --config /etc/magic-tv/config.toml
-WorkingDirectory=/opt/magic-tv/daemon
-Environment=PYTHONPATH=/opt/magic-tv/daemon
+ExecStart=/usr/bin/python3 -m pioneertv --config /etc/pioneer-tv/config.toml
+WorkingDirectory=/opt/pioneer-tv/daemon
+Environment=PYTHONPATH=/opt/pioneer-tv/daemon
 Environment=PYTHONUNBUFFERED=1
 Restart=always
 RestartSec=2

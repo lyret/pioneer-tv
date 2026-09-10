@@ -1,9 +1,9 @@
-// Magic TV on-screen keyboard.
+// Pioneer TV on-screen keyboard.
 //
 // A bottom sheet driven by the d-pad. It never takes focus itself: the target
 // field keeps focus and its caret, and we write into it in a way React-style
 // controlled inputs notice.
-window.MagicTV = window.MagicTV || {};
+window.PioneerTV = window.PioneerTV || {};
 (function (M) {
   const LAYERS = {
     letters: [
@@ -35,7 +35,7 @@ window.MagicTV = window.MagicTV || {};
       this.row = 1; this.col = 0;
       this.highlight();
       M.nav.captured = this;
-      document.documentElement.classList.add('magictv-keyboard-open');
+      document.documentElement.classList.add('pioneertv-keyboard-open');
       try { this.target.scrollIntoView({ block: 'start' }); } catch {}
       M.bridge && M.bridge.emit('keyboard:open');
     },
@@ -44,7 +44,7 @@ window.MagicTV = window.MagicTV || {};
       if (this.root) this.root.remove();
       this.root = null;
       if (M.nav.captured === this) M.nav.captured = null;
-      document.documentElement.classList.remove('magictv-keyboard-open');
+      document.documentElement.classList.remove('pioneertv-keyboard-open');
       M.bridge && M.bridge.emit('keyboard:close');
     },
 
@@ -59,8 +59,8 @@ window.MagicTV = window.MagicTV || {};
 
     build() {
       const root = document.createElement('div');
-      root.className = 'magictv-keyboard';
-      root.setAttribute('data-magictv-overlay', '');
+      root.className = 'pioneertv-keyboard';
+      root.setAttribute('data-pioneertv-overlay', '');
       root.addEventListener('mousedown', (e) => e.preventDefault()); // keep focus in the field
       const rows = LAYERS[this.layer];
       this.buttons = rows.map((row, ri) => row.map((key, ci) => {
@@ -68,7 +68,7 @@ window.MagicTV = window.MagicTV || {};
         const b = document.createElement('button');
         b.type = 'button';
         b.tabIndex = -1;
-        b.className = 'magictv-key' + (def.accent ? ' magictv-key-accent' : '');
+        b.className = 'pioneertv-key' + (def.accent ? ' pioneertv-key-accent' : '');
         b.style.flexGrow = String(def.w || 1);
         b.style.flexBasis = '0';
         b.textContent = this.displayLabel(def);
@@ -78,12 +78,12 @@ window.MagicTV = window.MagicTV || {};
       }));
       for (const row of this.buttons) {
         const r = document.createElement('div');
-        r.className = 'magictv-keyrow';
+        r.className = 'pioneertv-keyrow';
         for (const { el } of row) r.appendChild(el);
         root.appendChild(r);
       }
       const hint = document.createElement('div');
-      hint.className = 'magictv-keyhint';
+      hint.className = 'pioneertv-keyhint';
       hint.textContent = 'A: skriv   B: stäng   Y: tangentbord';
       root.appendChild(hint);
       document.documentElement.appendChild(root);
@@ -100,10 +100,10 @@ window.MagicTV = window.MagicTV || {};
     },
 
     highlight() {
-      for (const row of this.buttons) for (const { el } of row) el.classList.remove('magictv-key-active');
+      for (const row of this.buttons) for (const { el } of row) el.classList.remove('pioneertv-key-active');
       const row = this.buttons[this.row];
       this.col = Math.max(0, Math.min(this.col, row.length - 1));
-      row[this.col].el.classList.add('magictv-key-active');
+      row[this.col].el.classList.add('pioneertv-key-active');
     },
 
     // Move between rows by horizontal position so wide keys line up.
@@ -198,4 +198,4 @@ window.MagicTV = window.MagicTV || {};
   };
 
   M.keyboard = kb;
-})(window.MagicTV);
+})(window.PioneerTV);

@@ -5,7 +5,7 @@ import logging
 
 from evdev import UInput, ecodes as e
 
-log = logging.getLogger("magictv.uinput")
+log = logging.getLogger("pioneertv.uinput")
 
 KEYBOARD_KEYS = [
     e.KEY_UP, e.KEY_DOWN, e.KEY_LEFT, e.KEY_RIGHT, e.KEY_ENTER, e.KEY_ESC, e.KEY_SPACE,
@@ -18,13 +18,13 @@ KEYBOARD_KEYS = [
 
 class VirtualInput:
     def __init__(self) -> None:
-        self.keyboard = UInput({e.EV_KEY: KEYBOARD_KEYS}, name="Magic TV Virtual Keyboard")
+        self.keyboard = UInput({e.EV_KEY: KEYBOARD_KEYS}, name="Pioneer TV Virtual Keyboard")
         self.mouse = UInput(
             {
                 e.EV_KEY: [e.BTN_LEFT, e.BTN_RIGHT, e.BTN_MIDDLE],
                 e.EV_REL: [e.REL_X, e.REL_Y, e.REL_WHEEL],
             },
-            name="Magic TV Virtual Mouse",
+            name="Pioneer TV Virtual Mouse",
         )
         self._held: set[int] = set()
         log.info("virtual keyboard and mouse created")

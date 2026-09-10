@@ -16,7 +16,7 @@ from aiohttp import WSMsgType, web
 
 from . import settings, sysinfo
 
-log = logging.getLogger("magictv.server")
+log = logging.getLogger("pioneertv.server")
 WEB_DIR = Path(__file__).resolve().parent / "web"
 LOCAL_PEERS = {"127.0.0.1", "::1", "::ffff:127.0.0.1"}
 
@@ -60,14 +60,14 @@ class Server:
         if token and peer not in LOCAL_PEERS:
             supplied = (
                 request.query.get("token")
-                or request.cookies.get("magictv_token")
+                or request.cookies.get("pioneertv_token")
                 or request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
             )
             if supplied != token:
                 return web.json_response({"error": "unauthorized"}, status=401)
             resp = await handler(request)
             if request.query.get("token"):
-                resp.set_cookie("magictv_token", token, httponly=True, samesite="Strict", max_age=90 * 86400)
+                resp.set_cookie("pioneertv_token", token, httponly=True, samesite="Strict", max_age=90 * 86400)
             return resp
         return await handler(request)
 
@@ -194,8 +194,8 @@ class Server:
         return web.json_response({"ok": ok, "message": msg}, status=200 if ok else 400)
 
     async def api_logs(self, request: web.Request) -> web.Response:
-        unit = request.query.get("unit", "magic-tv-daemon")
-        if unit not in ("magic-tv-daemon", "magic-tv-weston", "bluetooth", "NetworkManager", "tailscaled"):
+        unit = request.query.get("unit", "pioneer-tv-daemon")
+        if unit not in ("pioneer-tv-daemon", "pioneer-tv-weston", "bluetooth", "NetworkManager", "tailscaled"):
             raise web.HTTPBadRequest(text="unknown unit")
         lines = max(10, min(int(request.query.get("lines", "120")), 1000))
         _, out = await sysinfo.run("journalctl", "-u", unit, "-n", str(lines), "--no-pager", "-o", "short-iso", timeout=10)

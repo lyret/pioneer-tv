@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Magic TV",
+  "name": "Pioneer TV",
   "version": "0.1.0",
   "description": "TV shell for Chromium: launcher, gamepad spatial navigation, on-screen keyboard and HUD.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqsYCFJHnTIiOVIGfsnoSSHwV+tHzPtTRqs0O8Qv9YXz0QSxqasifDUlpUirhpsX5XN1QrTccRHkM3HdItv2OwOFgOytefscvDzUpEDGSjDf9Yom8Exgk027rlqgZqgGwYJSp60ai31afWmTHsXwpiWTjQFwtccd0kCPZG6e6I8XqBUIiKRAs7Ec+2BkpgKpuc++TRIgFpxoiBakDlx6lFed5WtEy8Nif2M1DY+X/ohBah8zL9TjVemYKUxvTAHOxrsabnuZ9afIRmE50XzmiwV9kJlJaptE4yD5Uy2ciqWJtt8r/RX65FfX8XHjUI74yWv4MmzNMcxx7cx9NWG1hKwIDAQAB",
@@ -23,7 +23,7 @@
   "commands": {
     "go-home": {
       "suggested_key": { "default": "Ctrl+Alt+H" },
-      "description": "Go to the Magic TV launcher"
+      "description": "Go to the Pioneer TV launcher"
     },
     "toggle-keyboard": {
       "suggested_key": { "default": "Ctrl+Alt+K" },

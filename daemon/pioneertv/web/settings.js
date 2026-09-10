@@ -1,4 +1,4 @@
-// Magic TV settings page. Vanilla JS, talks to /api/*. Open with ?mock=1 to
+// Pioneer TV settings page. Vanilla JS, talks to /api/*. Open with ?mock=1 to
 // design without a daemon.
 (function () {
   const $ = (sel, el = document) => el.querySelector(sel);
@@ -44,10 +44,10 @@
     const wait = (v, ms = 250) => new Promise((r) => setTimeout(() => r(v), ms));
     if (path === '/api/status') return wait({
       wifi: { available: true, device: 'wlan0', state: 'connected', ssid: 'Lyresten', signal: 72 },
-      tailscale: { installed: true, state: 'running', ips: ['100.101.102.103'], dns_name: 'magic-tv.tail1234.ts.net', plex_online: true,
+      tailscale: { installed: true, state: 'running', ips: ['100.101.102.103'], dns_name: 'pioneer-tv.tail1234.ts.net', plex_online: true,
         peers: [{ host: 'plex', online: true }, { host: 'laptop', online: true }, { host: 'phone', online: false }] },
       interfaces: [{ name: 'eth0', up: true, addresses: ['192.168.1.40'] }, { name: 'wlan0', up: true, addresses: ['192.168.1.41'] }],
-      system: { hostname: 'magic-tv', temp_c: 54.3, throttled: 0, throttled_now: false, throttled_ever: false, mem_total_mb: 921, mem_available_mb: 380, uptime_s: 86400 * 3 + 3600, load1: 0.8, disk: { total_mb: 29000, free_mb: 21000 } },
+      system: { hostname: 'pioneer-tv', temp_c: 54.3, throttled: 0, throttled_now: false, throttled_ever: false, mem_total_mb: 921, mem_available_mb: 380, uptime_s: 86400 * 3 + 3600, load1: 0.8, disk: { total_mb: 29000, free_mb: 21000 } },
       gamepads: [{ name: 'Wireless Controller', battery: 65 }, { name: '8BitDo Pro 2', battery: null }],
       keyboard_present: false,
       cec: { enabled: true, phys_addr: '1.0.0.0', tv_power: 'on' },
@@ -61,7 +61,7 @@
           { path: 'ui.auto_keyboard', type: 'bool', label: 'Öppna skärmtangentbordet automatiskt', value: true } ] },
         { id: 'tv', title: 'TV', fields: [
           { path: 'cec.enabled', type: 'bool', label: 'HDMI-CEC', value: true },
-          { path: 'cec.osd_name', type: 'text', label: 'Namn som TV:n visar', value: 'Magic TV', maxlength: 14 } ] },
+          { path: 'cec.osd_name', type: 'text', label: 'Namn som TV:n visar', value: 'Pioneer TV', maxlength: 14 } ] },
         { id: 'remote', title: 'Fjärråtkomst', fields: [
           { path: 'remote.token', type: 'text', label: 'Åtkomstnyckel', secret: true, value: '', is_set: false } ] },
       ],
@@ -77,7 +77,7 @@
       { mac: 'AA:BB:CC:DD:EE:01', name: 'Wireless Controller', connected: true, paired: true, trusted: true, battery: 65, icon: 'input-gaming' },
       { mac: 'AA:BB:CC:DD:EE:02', name: '8BitDo Pro 2', connected: false, paired: true, trusted: true, battery: null, icon: 'input-gaming' },
       { mac: 'AA:BB:CC:DD:EE:03', name: 'Xbox Wireless Controller', connected: false, paired: false, trusted: false, battery: null, icon: 'input-gaming' } ], path.includes('scan') ? 2000 : 300);
-    if (path === '/api/logs') return wait('2026-09-10T07:00:01 magictv INFO magictv 0.1.0\n2026-09-10T07:00:02 magictv.cec INFO CEC registered as playback device\n');
+    if (path === '/api/logs') return wait('2026-09-10T07:00:01 pioneertv INFO pioneertv 0.1.0\n2026-09-10T07:00:02 pioneertv.cec INFO CEC registered as playback device\n');
     return wait({ ok: true, message: 'mock' });
   }
 
@@ -226,7 +226,7 @@
       );
     },
 
-    async controls(show) { return schemaView(show, 'controls', 'Kontroller', h('p', { class: 'muted' }, 'Fullständig knappmappning finns i /etc/magic-tv/config.toml.')); },
+    async controls(show) { return schemaView(show, 'controls', 'Kontroller', h('p', { class: 'muted' }, 'Fullständig knappmappning finns i /etc/pioneer-tv/config.toml.')); },
     async tv(show) {
       return schemaView(show, 'tv', 'TV', h('div', { class: 'actions' },
         h('button', { onclick: () => cec('tv_on') }, 'TV på'), h('button', { onclick: () => cec('tv_off') }, 'TV av'),
@@ -246,7 +246,7 @@
 
     async system(show) {
       const logs = h('pre', { class: 'log' }, 'Hämtar…');
-      const unit = h('select', { onchange: () => loadLogs() }, ['magic-tv-daemon', 'magic-tv-weston', 'bluetooth', 'NetworkManager', 'tailscaled'].map((u) => h('option', { value: u }, u)));
+      const unit = h('select', { onchange: () => loadLogs() }, ['pioneer-tv-daemon', 'pioneer-tv-weston', 'bluetooth', 'NetworkManager', 'tailscaled'].map((u) => h('option', { value: u }, u)));
       const loadLogs = async () => { logs.textContent = await api('GET', `/api/logs?unit=${unit.value}&lines=150`); logs.scrollTop = logs.scrollHeight; };
       show(
         h('h1', {}, 'System'),
@@ -305,5 +305,5 @@
   }
   window.addEventListener('hashchange', route);
   route();
-  api('GET', '/api/status').then((s) => { $('#foot').textContent = `${s.system.hostname} · v${s.version}${MOCK ? ' · mock' : ''}`; }).catch(() => {});
+  api('GET', '/api/status').then((s) => { $('#foot').textContent = `Maskinrepubliken · ${s.system.hostname} · v${s.version}${MOCK ? ' · mock' : ''}`; }).catch(() => {});
 })();

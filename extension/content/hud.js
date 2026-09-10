@@ -1,5 +1,5 @@
-// Magic TV HUD: toasts and the quick menu (Start button).
-window.MagicTV = window.MagicTV || {};
+// Pioneer TV HUD: toasts and the quick menu (Start button).
+window.PioneerTV = window.PioneerTV || {};
 (function (M) {
   const hud = {
     toastEl: null, toastTimer: null,
@@ -7,16 +7,16 @@ window.MagicTV = window.MagicTV || {};
     toast(text, icon = '', ms = 1800) {
       if (!this.toastEl) {
         this.toastEl = document.createElement('div');
-        this.toastEl.className = 'magictv-toast';
-        this.toastEl.setAttribute('data-magictv-overlay', '');
+        this.toastEl.className = 'pioneertv-toast';
+        this.toastEl.setAttribute('data-pioneertv-overlay', '');
         document.documentElement.appendChild(this.toastEl);
       }
       this.toastEl.innerHTML = '';
-      if (icon) { const i = document.createElement('span'); i.className = 'magictv-toast-icon'; i.textContent = icon; this.toastEl.appendChild(i); }
+      if (icon) { const i = document.createElement('span'); i.className = 'pioneertv-toast-icon'; i.textContent = icon; this.toastEl.appendChild(i); }
       const t = document.createElement('span'); t.textContent = text; this.toastEl.appendChild(t);
-      this.toastEl.classList.add('magictv-toast-show');
+      this.toastEl.classList.add('pioneertv-toast-show');
       clearTimeout(this.toastTimer);
-      this.toastTimer = setTimeout(() => this.toastEl.classList.remove('magictv-toast-show'), ms);
+      this.toastTimer = setTimeout(() => this.toastEl.classList.remove('pioneertv-toast-show'), ms);
     },
 
     menu: {
@@ -38,25 +38,25 @@ window.MagicTV = window.MagicTV || {};
           { label: 'Stäng av TV', icon: '⏻', run: () => b.cec('tv_off'), disabled: !tv },
         ];
         const root = document.createElement('div');
-        root.className = 'magictv-menu';
-        root.setAttribute('data-magictv-overlay', '');
+        root.className = 'pioneertv-menu';
+        root.setAttribute('data-pioneertv-overlay', '');
         const panel = document.createElement('div');
-        panel.className = 'magictv-menu-panel';
+        panel.className = 'pioneertv-menu-panel';
         const title = document.createElement('div');
-        title.className = 'magictv-menu-title';
-        title.textContent = 'Magic TV';
+        title.className = 'pioneertv-menu-title';
+        title.textContent = 'Pioneer TV';
         panel.appendChild(title);
         panel.appendChild(this.statusBlock(b.state.status, tv));
         this.items.forEach((it, i) => {
           const el = document.createElement('div');
-          el.className = 'magictv-menu-item' + (it.disabled ? ' magictv-menu-disabled' : '');
-          el.innerHTML = `<span class="magictv-menu-icon">${it.icon}</span><span>${it.label}</span>`;
+          el.className = 'pioneertv-menu-item' + (it.disabled ? ' pioneertv-menu-disabled' : '');
+          el.innerHTML = `<span class="pioneertv-menu-icon">${it.icon}</span><span>${it.label}</span>`;
           el.addEventListener('click', () => { this.index = i; this.activate(); });
           it.el = el;
           panel.appendChild(el);
         });
         const hint = document.createElement('div');
-        hint.className = 'magictv-keyhint';
+        hint.className = 'pioneertv-keyhint';
         hint.textContent = 'A: välj   B: stäng';
         panel.appendChild(hint);
         root.appendChild(panel);
@@ -74,11 +74,11 @@ window.MagicTV = window.MagicTV || {};
       // Compact status rows at the top of the menu: Wi-Fi, Tailscale, pads, temperature.
       statusBlock(s, connected) {
         const box = document.createElement('div');
-        box.className = 'magictv-menu-status';
+        box.className = 'pioneertv-menu-status';
         const row = (cls, icon, text) => {
           const r = document.createElement('div');
-          r.className = 'magictv-menu-statusrow';
-          r.innerHTML = `<span class="magictv-menu-dot ${cls}"></span><span class="magictv-menu-icon">${icon}</span><span></span>`;
+          r.className = 'pioneertv-menu-statusrow';
+          r.innerHTML = `<span class="pioneertv-menu-dot ${cls}"></span><span class="pioneertv-menu-icon">${icon}</span><span></span>`;
           r.lastElementChild.textContent = text;
           box.appendChild(r);
         };
@@ -95,7 +95,7 @@ window.MagicTV = window.MagicTV || {};
         row(sys.throttled_now ? 'bad' : sys.throttled_ever ? 'warn' : 'ok', '🌡', `${sys.temp_c != null ? sys.temp_c + ' °C' : '–'}${sys.throttled_now ? ' · underspänning' : ''}`);
         return box;
       },
-      highlight() { this.items.forEach((it, i) => it.el.classList.toggle('magictv-menu-active', i === this.index)); },
+      highlight() { this.items.forEach((it, i) => it.el.classList.toggle('pioneertv-menu-active', i === this.index)); },
       activate() {
         const it = this.items[this.index];
         if (!it || it.disabled) return;
@@ -115,4 +115,4 @@ window.MagicTV = window.MagicTV || {};
   };
 
   M.hud = hud;
-})(window.MagicTV);
+})(window.PioneerTV);

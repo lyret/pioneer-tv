@@ -1,4 +1,4 @@
-// Magic TV content entry point: wires bridge events to the overlays.
+// Pioneer TV content entry point: wires bridge events to the overlays.
 (function (M) {
   if (window.top !== window) return; // main frame only
   if (M._started) return;
@@ -32,11 +32,11 @@
     M.hud.toast(e.present ? 'Tangentbord anslutet' : 'Tangentbord frånkopplat', '⌨');
   });
 
-  b.on('state', (s) => document.documentElement.classList.toggle('magictv-tv', !!s.tvMode));
+  b.on('state', (s) => document.documentElement.classList.toggle('pioneertv-tv', !!s.tvMode));
 
   // Escape closes overlays before it reaches the page.
   window.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
     if (M.hud.menu.isOpen() || M.keyboard.isOpen()) return; // captured layers handle it
   }, true);
-})(window.MagicTV);
+})(window.PioneerTV);

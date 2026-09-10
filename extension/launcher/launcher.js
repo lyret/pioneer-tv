@@ -1,4 +1,4 @@
-// Magic TV launcher page logic.
+// Pioneer TV launcher page logic.
 (function (M) {
   const b = M.bridge;
   M.launcherUrl = location.href;
@@ -105,4 +105,4 @@
   render();
   // Land on the first tile, not the search field, so Enter does not pop the keyboard.
   requestAnimationFrame(() => M.nav.focus(tilesEl.firstElementChild, { scroll: false }));
-})(window.MagicTV);
+})(window.PioneerTV);

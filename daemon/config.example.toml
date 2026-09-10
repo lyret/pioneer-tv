@@ -1,5 +1,5 @@
-# Magic TV daemon configuration. Installed to /etc/magic-tv/config.toml.
-# Anything left out falls back to the defaults in magictv/config.py.
+# Pioneer TV daemon configuration. Installed to /etc/pioneer-tv/config.toml.
+# Anything left out falls back to the defaults in pioneertv/config.py.
 
 [daemon]
 host = "127.0.0.1"
@@ -9,7 +9,7 @@ log_level = "info"
 [cec]
 enabled = true
 device = "/dev/cec0"
-osd_name = "Magic TV"
+osd_name = "Pioneer TV"
 tv_address = 0
 tv_on_gamepad_connect = true   # PS/Xbox button wakes the TV and switches input
 monitor = true                 # follow TV standby and TV remote keys

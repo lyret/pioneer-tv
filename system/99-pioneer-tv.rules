@@ -1,0 +1,2 @@
+# Pioneer TV: let the input group use uinput (handy when running the daemon as pi during development).
+KERNEL=="uinput", GROUP="input", MODE="0660", OPTIONS+="static_node=uinput"

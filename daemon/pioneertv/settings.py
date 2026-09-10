@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-log = logging.getLogger("magictv.settings")
+log = logging.getLogger("pioneertv.settings")
 
 SCHEMA: list[dict] = [
     {
@@ -49,7 +49,7 @@ SERVICE_FIELDS = ["id", "name", "tagline", "url", "search_url", "color", "glyph"
 
 def overlay_path(cfg: dict) -> Path:
     base = cfg.get("_path")
-    directory = Path(base).parent if base else Path("/etc/magic-tv")
+    directory = Path(base).parent if base else Path("/etc/pioneer-tv")
     return directory / "settings.json"
 
 

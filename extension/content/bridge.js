@@ -1,8 +1,8 @@
-// Magic TV bridge: the only place that touches chrome.* APIs.
+// Pioneer TV bridge: the only place that touches chrome.* APIs.
 //
 // Every other script works without an extension context so the launcher and
 // overlays can be opened as plain files while designing.
-window.MagicTV = window.MagicTV || {};
+window.PioneerTV = window.PioneerTV || {};
 (function (M) {
   const listeners = {};
   const hasExt = !!(globalThis.chrome && chrome.runtime && chrome.runtime.id);
@@ -65,4 +65,4 @@ window.MagicTV = window.MagicTV || {};
   };
 
   M.bridge = bridge;
-})(window.MagicTV);
+})(window.PioneerTV);

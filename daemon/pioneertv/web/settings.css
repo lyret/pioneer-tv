@@ -1,4 +1,4 @@
-/* Magic TV settings page. Same tokens as the launcher; works on the TV
+/* Pioneer TV settings page. Same tokens as the launcher; works on the TV
    (big, d-pad friendly) and on a phone over Tailscale. */
 :root {
   --bg-0: #0b0d14; --bg-1: #151a2b; --fg: #f4f5f9; --fg-dim: rgba(244,245,249,0.6);
@@ -48,7 +48,7 @@ button.primary { background: #3a86ff; }
 button.danger { background: rgba(248,113,113,0.25); }
 button:disabled { opacity: 0.4; cursor: default; }
 button.small { padding: 6px 12px; font-size: 15px; }
-.magictv-focus, button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.pioneertv-focus, button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .field { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
 .field label { font-size: 18px; }
 .field .hint { font-size: 14px; color: var(--fg-dim); }

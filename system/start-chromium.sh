@@ -1,15 +1,15 @@
 #!/bin/bash
-# Launches Chromium in kiosk mode with the Magic TV extension.
-# Started by Weston's autolaunch (see weston.ini). Edit /etc/magic-tv/chromium.env
+# Launches Chromium in kiosk mode with the Pioneer TV extension.
+# Started by Weston's autolaunch (see weston.ini). Edit /etc/pioneer-tv/chromium.env
 # to add flags or change the profile location.
 set -u
 
-MAGIC_TV_DIR=${MAGIC_TV_DIR:-/opt/magic-tv}
+PIONEER_TV_DIR=${PIONEER_TV_DIR:-/opt/pioneer-tv}
 EXT_ID=dpigdefepjjejbkidlabpjlnleidgjaf
-PROFILE=${MAGIC_TV_PROFILE:-$HOME/.magic-tv/chromium}
-CACHE=${MAGIC_TV_CACHE:-/dev/shm/magic-tv-cache}   # RAM: the SD card must never be in the playback path
-EXTRA_FLAGS=${MAGIC_TV_CHROMIUM_FLAGS:-}
-[ -f /etc/magic-tv/chromium.env ] && . /etc/magic-tv/chromium.env
+PROFILE=${PIONEER_TV_PROFILE:-$HOME/.pioneer-tv/chromium}
+CACHE=${PIONEER_TV_CACHE:-/dev/shm/pioneer-tv-cache}   # RAM: the SD card must never be in the playback path
+EXTRA_FLAGS=${PIONEER_TV_CHROMIUM_FLAGS:-}
+[ -f /etc/pioneer-tv/chromium.env ] && . /etc/pioneer-tv/chromium.env
 
 mkdir -p "$PROFILE" "$CACHE"
 
@@ -28,7 +28,7 @@ exec "$BIN" \
   --user-data-dir="$PROFILE" \
   --disk-cache-dir="$CACHE" \
   --disk-cache-size=200000000 \
-  --load-extension="$MAGIC_TV_DIR/extension" \
+  --load-extension="$PIONEER_TV_DIR/extension" \
   --no-first-run \
   --noerrdialogs \
   --disable-infobars \

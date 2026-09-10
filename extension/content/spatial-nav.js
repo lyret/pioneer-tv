@@ -1,10 +1,10 @@
-// Magic TV spatial navigation.
+// Pioneer TV spatial navigation.
 //
 // Turns arrow keys into TV-style focus movement between links, buttons and
 // inputs on any page. Geometric: from the focused element's box, pick the
 // candidate in the pressed direction whose box is nearest, preferring ones
 // that overlap on the cross axis. Works on pages that never planned for it.
-window.MagicTV = window.MagicTV || {};
+window.PioneerTV = window.PioneerTV || {};
 (function (M) {
   const FOCUSABLE = [
     'a[href]', 'button', 'input', 'select', 'textarea', 'summary', 'video', 'audio',
@@ -14,7 +14,7 @@ window.MagicTV = window.MagicTV || {};
   ].join(',');
   const TEXT_INPUT = /^(text|search|email|url|number|password|tel)$/;
   const DIRS = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right' };
-  const FOCUS_CLASS = 'magictv-focus';
+  const FOCUS_CLASS = 'pioneertv-focus';
 
   const nav = {
     enabled: true,
@@ -35,7 +35,7 @@ window.MagicTV = window.MagicTV || {};
       if (r.width < 2 || r.height < 2) return false;
       const st = getComputedStyle(el);
       if (st.visibility === 'hidden' || st.display === 'none' || parseFloat(st.opacity) === 0) return false;
-      if (el.closest('[aria-hidden="true"], [inert], [data-magictv-overlay]')) return false;
+      if (el.closest('[aria-hidden="true"], [inert], [data-pioneertv-overlay]')) return false;
       if (r.bottom < -window.innerHeight || r.top > window.innerHeight * 2) return false; // far off screen
       if (r.right < 0 || r.left > window.innerWidth) return false;
       return true;
@@ -115,7 +115,7 @@ window.MagicTV = window.MagicTV || {};
     },
 
     initial(list) {
-      const marked = document.querySelector('[data-magictv-initial], [autofocus]');
+      const marked = document.querySelector('[data-pioneertv-initial], [autofocus]');
       if (marked && this.isVisible(marked)) return marked;
       // Top-most element that is inside the viewport, tie-break left-most.
       let best = null, bs = Infinity;
@@ -185,4 +185,4 @@ window.MagicTV = window.MagicTV || {};
   };
 
   M.nav = nav;
-})(window.MagicTV);
+})(window.PioneerTV);

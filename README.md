@@ -1,11 +1,11 @@
-# Magic TV
+# Pioneer TV
 
-A Raspberry Pi 3 B+ TV box for a 32" TV: Cineasterna, SVT Play and Plex as
+Maskinrepubliken's Raspberry Pi 3 B+ TV box for a 32" TV: Cineasterna, SVT Play and Plex as
 web pages in a kiosk Chromium on Weston, driven by a Bluetooth gamepad, with
 HDMI-CEC for the TV's volume and power.
 
 The box does not play video itself. Chromium does, with Raspberry Pi's Widevine
-build for Cineasterna. Magic TV is everything around that:
+build for Cineasterna. Pioneer TV is everything around that:
 
 | Part | What it does |
 | --- | --- |
@@ -54,11 +54,11 @@ The page has: status (network, Tailscale, CEC, gamepads, thermals and power
 throttling), Wi-Fi networks with connect and forget, Bluetooth scan and pairing
 for any number of gamepads, the services shown on the launcher, controller
 tuning, TV behaviour, and system actions (restart Chromium, reboot, update from
-git, logs). Changes are saved to `/etc/magic-tv/settings.json` and applied
+git, logs). Changes are saved to `/etc/pioneer-tv/settings.json` and applied
 without a restart; `config.toml` remains the place for the full button map.
 
 To design the settings page without a Pi, open
-`daemon/magictv/web/settings.html?mock=1` in a browser. It is responsive, so the
+`daemon/pioneertv/web/settings.html?mock=1` in a browser. It is responsive, so the
 same page works on a phone.
 
 **Remote access.** Keep the daemon on localhost and publish it to your tailnet:
@@ -88,7 +88,7 @@ requests must then carry it (`?token=` once, stored as a cookie).
 | Select | Status toast; hold to toggle TV power |
 | Guide / PS / Xbox | Home. Also wakes the TV and switches input when the pad connects |
 
-All of it is in `/etc/magic-tv/config.toml` (see `daemon/config.example.toml`).
+All of it is in `/etc/pioneer-tv/config.toml` (see `daemon/config.example.toml`).
 The TV remote works too: keys the TV forwards over CEC are mapped in `[cec.remote]`.
 
 ## Installing on the Pi
@@ -96,14 +96,14 @@ The TV remote works too: keys the TV forwards over CEC are mapped in `[cec.remot
 Raspberry Pi OS Lite, 64-bit, Bookworm, user `pi`, wired Ethernet.
 
 ```
-git clone https://github.com/lyret/magic-tv.git
-cd magic-tv
+git clone https://github.com/lyret/pioneer-tv.git
+cd pioneer-tv
 sudo system/install.sh
 sudo reboot
 ```
 
 The installer pulls in Weston, Chromium, Widevine, v4l-utils, BlueZ, aiohttp and
-evdev, copies the repo to `/opt/magic-tv`, installs the systemd units,
+evdev, copies the repo to `/opt/pioneer-tv`, installs the systemd units,
 forces a 720p mode, enables zram and the performance governor, and sets the
 boot target to graphical. Pair the first gamepad from the shell (later ones from the settings page):
 
@@ -118,14 +118,14 @@ bluetoothctl
 Tailscale is optional: `curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up`.
 
 Log in to Cineasterna and Plex once with the on-screen keyboard; the Chromium
-profile in `~/.magic-tv/chromium` remembers the sessions.
+profile in `~/.pioneer-tv/chromium` remembers the sessions.
 
 ### Useful commands
 
 ```
-journalctl -fu magic-tv-daemon        # gamepad, CEC and bridge log
-journalctl -fu magic-tv-weston        # Weston and Chromium output
-sudo python3 -m magictv -v            # run the daemon in the foreground (from /opt/magic-tv/daemon)
+journalctl -fu pioneer-tv-daemon        # gamepad, CEC and bridge log
+journalctl -fu pioneer-tv-weston        # Weston and Chromium output
+sudo python3 -m pioneertv -v            # run the daemon in the foreground (from /opt/pioneer-tv/daemon)
 curl -s localhost:8765/api/status     # what the settings page sees
 cec-ctl -d /dev/cec0 --to 0 --standby # TV off, straight from the shell
 vcgencmd get_throttled                # 0x0 means the TV's USB port is enough

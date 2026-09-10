@@ -1,4 +1,4 @@
-// Magic TV background service worker.
+// Pioneer TV background service worker.
 //
 // Owns the single WebSocket connection to the native daemon and relays its
 // events to the page that is currently shown. Also keeps Chromium in a
