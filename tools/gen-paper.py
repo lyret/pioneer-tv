@@ -6,8 +6,9 @@ Edit the colours below and run:  python3 tools/gen-paper.py
 from pathlib import Path
 from urllib.parse import quote
 
-INK = "#2b2419"; PAPER = "#f3ead3"; ACCENT = "#d4a92c"; RED = "#b5442a"
-PAPER_2 = "#e9dfc2"; PAPER_3 = "#ddd1ad"; INK_2 = "#6f6350"; INK_3 = "#a89a80"; MOSS = "#5d6f3f"
+INK = "#2b2419"; PAPER = "#f4edda"; ACCENT = "#e4c56a"; RED = "#b5442a"
+SHADOW = "#d9cdaa"; LINE = "#b9ad90"
+PAPER_2 = "#ebe2c8"; PAPER_3 = "#ddd1ad"; INK_2 = "#6f6350"; INK_3 = "#a89a80"; MOSS = "#5d6f3f"
 
 
 def svg(w, h, body, vb=None):
@@ -30,13 +31,14 @@ def card(fill, border=INK, shadow=INK, thick=False, shadow_on=True):
 
 
 tokens = {
-    "card": card(PAPER),
-    "card-focus": card(PAPER, thick=True),
-    "card-ink": card(INK, shadow_on=False),
-    "card-accent": card(ACCENT),
+    "card": card(PAPER, border=LINE, shadow=SHADOW),            # soft: the default
+    "card-strong": card(PAPER),                                   # ink border and shadow
+    "card-focus": card(PAPER, thick=True),                        # focus: ink, thick
+    "card-ink": card(INK, shadow_on=False),                       # inverted (active key, menu row)
+    "card-accent": card(ACCENT, border=LINE, shadow=SHADOW),
     "card-accent-focus": card(ACCENT, thick=True),
-    "card-red": card(PAPER, border=RED, shadow=RED),
-    "card-flat": card(PAPER, shadow_on=False),
+    "card-red": card(PAPER, border=RED, shadow=SHADOW),
+    "card-flat": card(PAPER, border=LINE, shadow_on=False),
 }
 dither_light = svg(4, 4, f'<rect width="1" height="1" fill="{INK}" fill-opacity="0.3"/><rect x="1" y="1" width="1" height="1" fill="{INK}" fill-opacity="0.3"/>', vb="0 0 2 2")
 dither = svg(4, 4, f'<rect width="1" height="1" fill="{INK}"/><rect x="1" y="1" width="1" height="1" fill="{INK}"/>', vb="0 0 2 2")
@@ -49,6 +51,8 @@ CSS = f"""/* Pioneer TV paper design system: tokens and 8-bit primitives shared 
   --pioneertv-paper: {PAPER};
   --pioneertv-paper-2: {PAPER_2};
   --pioneertv-paper-3: {PAPER_3};
+  --pioneertv-shadow: {SHADOW};
+  --pioneertv-line: {LINE};
   --pioneertv-ink: {INK};
   --pioneertv-ink-2: {INK_2};
   --pioneertv-ink-3: {INK_3};
@@ -59,6 +63,7 @@ CSS = f"""/* Pioneer TV paper design system: tokens and 8-bit primitives shared 
   --pioneertv-pixel: "Silkscreen", "Press Start 2P", "Courier New", monospace;
   --pioneertv-px: 4px;  /* one 8-bit pixel */
   --pioneertv-card: {tokens['card']};
+  --pioneertv-card-strong: {tokens['card-strong']};
   --pioneertv-card-focus: {tokens['card-focus']};
   --pioneertv-card-ink: {tokens['card-ink']};
   --pioneertv-card-accent: {tokens['card-accent']};
@@ -72,7 +77,7 @@ CSS = f"""/* Pioneer TV paper design system: tokens and 8-bit primitives shared 
 
 /* A paper card with a 1px ink border, notched corners and a hard shadow.
    The border-image draws everything; keep background transparent. */
-.pioneertv-card, .pioneertv-card-focus, .pioneertv-card-ink, .pioneertv-card-accent, .pioneertv-card-red, .pioneertv-card-flat {{
+.pioneertv-card, .pioneertv-card-strong, .pioneertv-card-focus, .pioneertv-card-ink, .pioneertv-card-accent, .pioneertv-card-red, .pioneertv-card-flat {{
   border: calc(var(--pioneertv-px) * 4) solid transparent;
   border-image-slice: 16 fill;
   border-image-width: calc(var(--pioneertv-px) * 4);
@@ -83,6 +88,7 @@ CSS = f"""/* Pioneer TV paper design system: tokens and 8-bit primitives shared 
   padding-right: var(--pioneertv-px); padding-bottom: var(--pioneertv-px);
 }}
 .pioneertv-card {{ border-image-source: var(--pioneertv-card); }}
+.pioneertv-card-strong {{ border-image-source: var(--pioneertv-card-strong); }}
 .pioneertv-card-focus {{ border-image-source: var(--pioneertv-card-focus); }}
 .pioneertv-card-ink {{ border-image-source: var(--pioneertv-card-ink); color: var(--pioneertv-paper); }}
 .pioneertv-card-accent {{ border-image-source: var(--pioneertv-card-accent); }}
@@ -96,8 +102,9 @@ CSS = f"""/* Pioneer TV paper design system: tokens and 8-bit primitives shared 
 .pioneertv-kbd {{
   display: inline-block; min-width: 1.5em; padding: 0.15em 0.35em 0.05em; text-align: center;
   font-family: var(--pioneertv-pixel); font-size: 0.8em; line-height: 1;
-  color: var(--pioneertv-paper); background: var(--pioneertv-ink);
-  box-shadow: var(--pioneertv-px) var(--pioneertv-px) 0 var(--pioneertv-ink-3);
+  color: var(--pioneertv-ink); background: var(--pioneertv-paper-2);
+  border: 1px solid var(--pioneertv-line);
+  box-shadow: 2px 2px 0 var(--pioneertv-shadow);
 }}
 """
 out = Path(__file__).resolve().parent.parent / "extension" / "content" / "paper.css"

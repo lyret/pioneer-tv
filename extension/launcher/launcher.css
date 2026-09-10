@@ -19,24 +19,15 @@ body:hover { cursor: default; }
 .page { height: 100%; display: flex; flex-direction: column; padding: 2.4vh 5vw 2vh; }
 
 /* ---- masthead ---- */
-.masthead { display: flex; align-items: flex-end; justify-content: space-between; height: 3.2rem; }
-.masthead-left { display: flex; align-items: center; gap: 0.8rem; }
-.mark {
-  width: 1.5rem; height: 1.5rem; background: var(--pioneertv-ink);
-  clip-path: polygon(25% 0, 75% 0, 75% 25%, 100% 25%, 100% 75%, 75% 75%, 75% 100%, 25% 100%, 25% 75%, 0 75%, 0 25%, 25% 25%);
-}
-.title { font-family: var(--pioneertv-pixel); font-weight: 700; font-size: 1.9rem; letter-spacing: 0.05em; line-height: 1; }
+.masthead { display: flex; align-items: center; justify-content: space-between; height: 2.4rem; }
+.dateline { font-size: 1.15rem; font-variant: small-caps; letter-spacing: 0.06em; color: var(--pioneertv-ink-2); }
 .masthead-right { display: flex; align-items: center; gap: 0.9rem; }
-.pill { display: inline-flex; font-size: 1.3rem; color: var(--pioneertv-ink-3); }
-.pill.on { color: var(--pioneertv-ink); }
+.pill { display: inline-flex; font-size: 1.1rem; color: var(--pioneertv-line); }
+.pill.on { color: var(--pioneertv-ink-2); }
 .pill.warn { color: var(--pioneertv-red); }
-.clock { font-family: var(--pioneertv-pixel); font-size: 1.5rem; line-height: 1; margin-left: 0.4rem; }
+.clock { font-family: var(--pioneertv-pixel); font-size: 1.15rem; line-height: 1; margin-left: 0.5rem; color: var(--pioneertv-ink-2); }
 
-.rule { height: 0.5rem; margin-top: 0.6rem; border-top: var(--pioneertv-px) solid var(--pioneertv-ink); border-bottom: 1px solid var(--pioneertv-ink); }
-.dateline {
-  display: flex; justify-content: space-between; padding: 0.35rem 0 0;
-  font-size: 1.05rem; font-variant: small-caps; letter-spacing: 0.06em; color: var(--pioneertv-ink-2);
-}
+.rule { height: 0; margin-top: 0.5rem; border-top: 1px solid var(--pioneertv-line); }
 
 /* ---- content ---- */
 .content { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2.4vh; }
@@ -51,25 +42,20 @@ body:hover { cursor: default; }
   color: var(--pioneertv-ink); text-decoration: none;
 }
 .tile .band {
-  position: absolute; top: 0; left: 0; right: 0; height: calc(var(--pioneertv-px) * 3);
+  position: absolute; top: 0; left: 0; right: 0; height: calc(var(--pioneertv-px) * 2);
   background: var(--tile-color, var(--pioneertv-ink));
 }
-.tile .band::after {
-  content: ""; position: absolute; left: 0; right: 0; top: 100%; height: calc(var(--pioneertv-px) * 2);
-  background-image: var(--pioneertv-dither); background-size: var(--pioneertv-px) var(--pioneertv-px);
-  opacity: 0.25;
-}
 .tile .glyph {
-  position: absolute; top: 1.2rem; right: 1.1rem;
-  font-family: var(--pioneertv-pixel); font-weight: 700; font-size: 5.2rem; line-height: 1;
-  color: var(--tile-color, var(--pioneertv-ink)); opacity: 0.9;
+  position: absolute; top: 1.1rem; right: 1.1rem;
+  font-family: var(--pioneertv-pixel); font-weight: 700; font-size: 2.4rem; line-height: 1;
+  color: var(--tile-color, var(--pioneertv-ink)); opacity: 0.55;
 }
 .tile .logo { position: absolute; top: 1.4rem; left: 1.2rem; height: 3rem; max-width: 55%; object-fit: contain; filter: grayscale(1) contrast(1.2); }
 .tile .name { font-size: 2.1rem; font-weight: 600; line-height: 1.1; }
 .tile .tagline { font-size: 1.15rem; font-style: italic; color: var(--pioneertv-ink-2); margin-top: 0.2rem; }
-.tile .index { position: absolute; bottom: 0.9rem; right: 1.1rem; font-family: var(--pioneertv-pixel); font-size: 0.8rem; color: var(--pioneertv-ink-3); }
+.tile .index { position: absolute; bottom: 0.9rem; right: 1.1rem; font-family: var(--pioneertv-pixel); font-size: 0.75rem; color: var(--pioneertv-line); }
 .tile.pioneertv-focus, .tile:hover { border-image-source: var(--pioneertv-card-focus); transform: translate(calc(var(--pioneertv-px) * -1), calc(var(--pioneertv-px) * -1)); }
-.tile.pioneertv-focus .name { text-decoration: underline; text-decoration-thickness: var(--pioneertv-px); text-underline-offset: 0.2em; }
+.tile.pioneertv-focus .glyph { opacity: 1; }
 
 /* ---- search row ---- */
 .row { display: grid; grid-template-columns: 1fr auto auto; gap: 1.5rem; align-items: stretch; }
@@ -85,9 +71,9 @@ body:hover { cursor: default; }
 .small-tile {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.15rem;
   min-width: 8.5rem; padding-left: 0.8rem; padding-top: 0.2rem;
-  color: var(--pioneertv-ink); font: 1rem var(--pioneertv-pixel); cursor: pointer; text-transform: uppercase;
+  color: var(--pioneertv-ink-2); font: 0.8rem var(--pioneertv-pixel); cursor: pointer; text-transform: uppercase;
 }
-.small-tile .small-icon { font-size: 1.7rem; display: inline-flex; }
+.small-tile .small-icon { font-size: 1.5rem; display: inline-flex; color: var(--pioneertv-ink-2); }
 .small-tile.pioneertv-focus, .small-tile:hover { border-image-source: var(--pioneertv-card-focus); }
 
 /* ---- search targets ---- */
@@ -105,13 +91,14 @@ body:hover { cursor: default; }
 
 /* ---- legend ---- */
 .legend {
-  display: flex; align-items: center; gap: 2.2rem; height: 2.6rem; margin-top: 1vh;
-  border-top: 1px solid var(--pioneertv-ink-3);
-  font-size: 1.05rem; font-variant: small-caps; letter-spacing: 0.05em; color: var(--pioneertv-ink-2);
+  display: flex; align-items: center; gap: 2rem; height: 2.6rem; margin-top: 1vh;
+  border-top: 1px solid var(--pioneertv-line);
+  font-size: 1rem; font-variant: small-caps; letter-spacing: 0.05em; color: var(--pioneertv-ink-3);
 }
 .legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
-.legend i { display: inline-flex; font-size: 0.9rem; font-style: normal; color: var(--pioneertv-ink); }
-.legend .credit { margin-left: auto; font-family: var(--pioneertv-pixel); font-variant: normal; font-size: 0.75rem; letter-spacing: 0.08em; color: var(--pioneertv-ink-3); }
+.legend i { display: inline-flex; font-size: 0.8rem; font-style: normal; color: var(--pioneertv-ink-2); }
+.legend .pioneertv-kbd { font-size: 0.65rem; }
+.legend .credit { margin-left: auto; color: var(--pioneertv-line); }
 
 /* focus ring is drawn by the cards themselves here */
 .pioneertv-focus { outline: none !important; box-shadow: none !important; }

@@ -31,18 +31,14 @@
   padding: 14px 18px 10px;
   background-color: #f3ead3;
   background-image: var(--pioneertv-grain); background-size: 12px 12px;
-  border-top: 4px solid #2b2419;
-  box-shadow: 0 -4px 0 #a89a80;
-}
-.pioneertv-keyboard::before {
-  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 8px;
-  background-image: var(--pioneertv-dither); background-size: 4px 4px; opacity: 0.35;
+  border-top: 1px solid #b9ad90;
+  box-shadow: 0 -4px 0 #d9cdaa;
 }
 html.pioneertv-keyboard-open { scroll-padding-bottom: 320px; }
 .pioneertv-keyrow { display: flex; gap: 10px; margin-bottom: 10px; }
 .pioneertv-key {
   height: 52px; padding: 0 0 4px 0; margin: 0;
-  font: 700 18px "Silkscreen", "Courier New", monospace; line-height: 1; color: #2b2419;
+  font: 700 16px "Silkscreen", "Courier New", monospace; line-height: 1; color: #2b2419;
   border-image-source: var(--pioneertv-card);
   cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
 }
@@ -52,7 +48,7 @@ html.pioneertv-keyboard-open { scroll-padding-bottom: 320px; }
 .pioneertv-key-active { border-image-source: var(--pioneertv-card-ink) !important; color: #f3ead3 !important; transform: translate(4px, 4px); }
 .pioneertv-keyhint {
   font: 12px "Silkscreen", monospace; letter-spacing: 0.05em; text-transform: uppercase;
-  color: #6f6350; text-align: right;
+  color: #a89a80; text-align: right;
 }
 
 /* ---- toast ---- */
@@ -77,19 +73,17 @@ html.pioneertv-keyboard-open { scroll-padding-bottom: 320px; }
   width: 360px; height: 100%; padding: 28px 24px 20px;
   background-color: #f3ead3;
   background-image: var(--pioneertv-grain); background-size: 12px 12px;
-  border-left: 4px solid #2b2419;
-  box-shadow: -4px 0 0 #a89a80;
+  border-left: 1px solid #b9ad90;
+  box-shadow: -4px 0 0 #d9cdaa;
   display: flex; flex-direction: column; gap: 4px;
 }
 .pioneertv-menu-title {
-  font: 700 20px "Silkscreen", monospace; letter-spacing: 0.05em; margin-bottom: 10px;
-  padding-bottom: 8px; border-bottom: 4px solid #2b2419;
-  position: relative;
+  font: 600 26px "EB Garamond", Georgia, serif; margin-bottom: 8px;
+  padding-bottom: 8px; border-bottom: 1px solid #b9ad90;
 }
-.pioneertv-menu-title::after { content: ""; position: absolute; left: 0; right: 0; bottom: -7px; height: 1px; background: #2b2419; }
 .pioneertv-menu-status {
   display: flex; flex-direction: column; gap: 5px; margin: 6px 0 12px; padding-bottom: 12px;
-  border-bottom: 1px solid #a89a80; font-size: 17px; color: #6f6350;
+  border-bottom: 1px solid #b9ad90; font-size: 17px; color: #6f6350;
 }
 .pioneertv-menu-statusrow { display: flex; align-items: center; gap: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pioneertv-menu-statusrow .pioneertv-menu-icon { width: 20px; font-size: 16px; display: inline-flex; color: #2b2419; }
@@ -100,6 +94,6 @@ html.pioneertv-keyboard-open { scroll-padding-bottom: 320px; }
   padding: 10px 12px 8px; font-size: 24px; cursor: pointer;
 }
 .pioneertv-menu-icon { width: 30px; text-align: center; font-size: 22px; display: inline-flex; justify-content: center; }
-.pioneertv-menu-active { background: #2b2419; color: #f3ead3; box-shadow: 4px 4px 0 #a89a80; }
+.pioneertv-menu-active { background: #2b2419; color: #f4edda; box-shadow: 4px 4px 0 #d9cdaa; }
 .pioneertv-menu-disabled { opacity: 0.35; }
 .pioneertv-menu-panel .pioneertv-keyhint { margin-top: auto; }

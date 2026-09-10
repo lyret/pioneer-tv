@@ -44,7 +44,7 @@ window.PioneerTV = window.PioneerTV || {};
         panel.className = 'pioneertv-menu-panel';
         const title = document.createElement('div');
         title.className = 'pioneertv-menu-title';
-        title.textContent = 'PIONEER TV';
+        title.textContent = 'Meny';
         panel.appendChild(title);
         panel.appendChild(this.statusBlock(b.state.status, tv));
         this.items.forEach((it, i) => {
