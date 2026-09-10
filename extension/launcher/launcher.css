@@ -31,9 +31,8 @@ body:hover { cursor: default; }
 
 /* ---- content ---- */
 .content { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2.4vh; }
-.hero { margin-bottom: 0.4vh; }
-.greeting { margin: 0; font-size: 3.4rem; font-weight: 600; line-height: 1.05; letter-spacing: -0.01em; }
-.subtitle { margin: 0.4rem 0 0; font-size: 1.5rem; font-style: italic; color: var(--pioneertv-ink-2); }
+.hero { margin-bottom: 0.8vh; }
+.greeting { margin: 0; font-size: 3.2rem; font-weight: 600; line-height: 1.05; letter-spacing: -0.01em; }
 
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 .tile {

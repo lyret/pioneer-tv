@@ -73,8 +73,6 @@
   function tick() {
     const d = new Date();
     clock.textContent = d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
-    const h = d.getHours();
-    $('greeting').textContent = (h < 5 ? 'God natt' : h < 10 ? 'God morgon' : h < 18 ? 'God dag' : 'God kväll') + '.';
     const date = d.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     $('dateline').textContent = date.charAt(0).toUpperCase() + date.slice(1);
   }
