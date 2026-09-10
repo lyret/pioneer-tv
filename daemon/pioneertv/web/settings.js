@@ -81,7 +81,7 @@
     if (path.startsWith('/api/update') && method === 'GET') return wait({ available: true, repo: '/home/pi/pioneer-tv', commit: '1a2b3c4', branch: 'main', date: '2026-09-10', subject: 'Soften the paper design', remote: '5d6e7f8', behind: 2, dirty: false,
       commits: ['5d6e7f8 2026-09-11 Add update button to menus', '9a8b7c6 2026-09-11 Fix CEC monitor parsing'] }, 1200);
     if (path === '/api/update' && method === 'POST') return wait({ ok: true, message: 'Running as unit: pioneer-tv-update.service' });
-    if (path === '/api/logs') return wait('2026-09-10T07:00:01 pioneertv INFO pioneertv 0.1.0\n2026-09-10T07:00:02 pioneertv.cec INFO CEC registered as playback device\n');
+    if (path.startsWith('/api/logs')) return wait('2026-09-10T07:00:01 pioneertv INFO pioneertv 0.1.0\n2026-09-10T07:00:02 pioneertv.cec INFO CEC registered as playback device\n');
     return wait({ ok: true, message: 'mock' });
   }
 
