@@ -121,11 +121,13 @@ The TV remote works too: keys the TV forwards over CEC are mapped in `[cec.remot
 Raspberry Pi OS Lite, 64-bit, Bookworm, user `pi`, wired Ethernet.
 
 ```
-git clone https://github.com/lyret/pioneer-tv.git
+git clone -b main https://github.com/lyret/pioneer-tv.git
 cd pioneer-tv
 sudo system/install.sh
 sudo reboot
 ```
+
+The box follows the branch it was installed from; `main` is the one to use.
 
 The installer pulls in Weston, Chromium, Widevine, v4l-utils, BlueZ, aiohttp and
 evdev, copies the repo to `/opt/pioneer-tv`, installs the systemd units,
