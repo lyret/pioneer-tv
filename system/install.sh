@@ -12,15 +12,23 @@ BOOT=/boot/firmware
 
 if [ "${PIONEER_TV_SKIP_APT:-0}" != "1" ]; then
 echo "== packages"
+export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y --no-install-recommends \
   weston seatd \
-  chromium-browser libwidevinecdm0 \
   v4l-utils \
   bluez \
   python3 python3-evdev python3-aiohttp \
-  zram-tools cpufrequtils \
-  fonts-noto-core fonts-noto-color-emoji
+  rsync git \
+  fonts-noto-core
+# Raspberry Pi OS ships its own Chromium build (with Widevine support) as
+# chromium-browser; plain Debian calls it chromium.
+apt-get install -y --no-install-recommends chromium-browser \
+  || apt-get install -y --no-install-recommends chromium
+# Nice to have; not present on every image.
+for p in libwidevinecdm0 zram-tools fonts-noto-color-emoji; do
+  apt-get install -y --no-install-recommends "$p" || echo "warning: $p not available, continuing"
+done
 fi
 
 echo "== files"
@@ -35,7 +43,7 @@ mkdir -p /var/lib/pioneer-tv
 cp "$REPO/system/weston.ini" "$HOME_DIR/.config/weston.ini"
 chown -R "$USER_NAME:$USER_NAME" "$HOME_DIR/.config"
 cp "$REPO/system/99-pioneer-tv.rules" /etc/udev/rules.d/
-cp "$REPO/system/pioneer-tv-daemon.service" "$REPO/system/pioneer-tv-weston.service" /etc/systemd/system/
+cp "$REPO/system/pioneer-tv-daemon.service" "$REPO/system/pioneer-tv-weston.service" "$REPO/system/pioneer-tv-governor.service" /etc/systemd/system/
 
 echo "$REPO" > /etc/pioneer-tv/repo
 
@@ -54,15 +62,17 @@ echo 'options bluetooth disable_ertm=1' > /etc/modprobe.d/pioneer-tv-bluetooth.c
 echo uinput > /etc/modules-load.d/pioneer-tv.conf
 
 echo "== performance"
-sed -i 's/^#\?PERCENT=.*/PERCENT=60/; s/^#\?ALGO=.*/ALGO=lz4/' /etc/default/zramswap || true
+if [ -f /etc/default/zramswap ]; then
+  sed -i 's/^#\?PERCENT=.*/PERCENT=60/; s/^#\?ALGO=.*/ALGO=lz4/' /etc/default/zramswap
+fi
 echo 'vm.swappiness=100' > /etc/sysctl.d/90-pioneer-tv.conf
-echo 'GOVERNOR="performance"' > /etc/default/cpufrequtils
 
 echo "== services"
 systemctl daemon-reload
 systemctl disable getty@tty1.service || true
 systemctl set-default graphical.target
-systemctl enable seatd zramswap cpufrequtils bluetooth
+systemctl enable seatd bluetooth pioneer-tv-governor.service
+systemctl enable zramswap 2>/dev/null || true
 systemctl enable pioneer-tv-daemon.service pioneer-tv-weston.service
 
 cat <<MSG

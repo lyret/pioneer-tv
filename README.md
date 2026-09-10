@@ -149,8 +149,8 @@ The box follows the branch it was installed from; `main` is the one to use.
 
 The installer pulls in Weston, Chromium, Widevine, v4l-utils, BlueZ, aiohttp and
 evdev, copies the repo to `/opt/pioneer-tv`, installs the systemd units,
-forces a 720p mode, enables zram and the performance governor, and sets the
-boot target to graphical. Pair the first gamepad from the shell (later ones from the settings page):
+forces a 720p mode, enables zram and sets the CPU governor to performance at
+boot, and sets the boot target to graphical. Rerunning it is safe. Pair the first gamepad from the shell (later ones from the settings page):
 
 ```
 bluetoothctl
