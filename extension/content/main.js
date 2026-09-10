@@ -27,6 +27,10 @@
     M.hud.toast(`${s.daemonConnected ? 'Daemon ansluten' : 'Ingen daemon'} · ${location.hostname || 'launcher'}`, 'ℹ');
   });
   b.on('toast', (e) => M.hud.toast(e.text, e.icon || ''));
+  b.on('keyboard_present', (e) => {
+    b.state.physicalKeyboard = !!e.present;
+    M.hud.toast(e.present ? 'Tangentbord anslutet' : 'Tangentbord frånkopplat', '⌨');
+  });
 
   b.on('state', (s) => document.documentElement.classList.toggle('magictv-tv', !!s.tvMode));
 

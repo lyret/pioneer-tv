@@ -13,6 +13,8 @@ window.MagicTV = window.MagicTV || {};
     state: {
       daemonConnected: false,
       config: null,
+      status: null,          // last status broadcast from the daemon
+      physicalKeyboard: false,
       // "TV mode" turns on the behaviours that only make sense with a gamepad
       // (auto keyboard, big focus ring). Forced with ?tv=1 when designing.
       tvMode: params.has('tv'),
@@ -33,6 +35,16 @@ window.MagicTV = window.MagicTV || {};
       if (hasExt) this.send({ type: 'home' });
       else location.href = M.launcherUrl || '../launcher/index.html';
     },
+    settings() {
+      if (hasExt) this.send({ type: 'settings' });
+      else location.href = 'http://127.0.0.1:8765/';
+    },
+    // Should Enter in a text field pop the on-screen keyboard?
+    autoKeyboard() {
+      if (!this.state.tvMode || this.state.physicalKeyboard) return false;
+      const ui = (this.state.config && this.state.config.ui) || {};
+      return ui.auto_keyboard !== false;
+    },
 
     init() {
       if (!hasExt) { this.emit('state', this.state); return; }
@@ -46,6 +58,7 @@ window.MagicTV = window.MagicTV || {};
     _applyState(s) {
       this.state.daemonConnected = !!s.daemonConnected;
       this.state.config = s.config || null;
+      if (s.status) { this.state.status = s.status; this.state.physicalKeyboard = !!s.status.keyboard_present; }
       if (this.state.daemonConnected) this.state.tvMode = true;
       this.emit('state', this.state);
     },

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magic TV – Inställningar</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/settings.css">
+</head>
+<body>
+  <div class="app">
+    <nav class="sidebar" id="nav">
+      <div class="brand"><span class="brand-dot"></span> Magic TV</div>
+      <a href="#status" data-view="status" data-magictv-initial>Status</a>
+      <a href="#wifi" data-view="wifi">Wi-Fi</a>
+      <a href="#gamepads" data-view="gamepads">Handkontroller</a>
+      <a href="#services" data-view="services">Tjänster</a>
+      <a href="#controls" data-view="controls">Kontroller</a>
+      <a href="#tv" data-view="tv">TV</a>
+      <a href="#remote" data-view="remote">Fjärråtkomst</a>
+      <a href="#system" data-view="system">System</a>
+      <div class="sidebar-foot" id="foot"></div>
+    </nav>
+    <main class="main" id="main">
+      <p class="muted">Laddar…</p>
+    </main>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="/static/settings.js"></script>
+</body>
+</html>

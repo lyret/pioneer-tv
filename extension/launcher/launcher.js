@@ -86,6 +86,22 @@
   });
   b.on('gamepad', (e) => $('pill-gamepad').classList.toggle('on', !!e.connected));
 
+  function applyStatus(s) {
+    if (!s) return;
+    const w = s.wifi || {}, t = s.tailscale || {};
+    const eth = (s.interfaces || []).find((i) => i.name.startsWith('e') && i.addresses.length);
+    const wifi = $('pill-wifi');
+    wifi.textContent = w.state === 'connected' ? '📶' : eth ? '🔌' : '📶';
+    wifi.classList.toggle('on', w.state === 'connected' || !!eth);
+    wifi.title = w.state === 'connected' ? `${w.ssid} ${w.signal != null ? w.signal + '%' : ''}` : eth ? `Ethernet ${eth.addresses[0]}` : 'Inget nätverk';
+    const ts = $('pill-tailscale');
+    ts.classList.toggle('on', t.state === 'running');
+    ts.classList.toggle('warn', t.state === 'running' && t.plex_online === false);
+    ts.title = t.state === 'running' ? `Tailscale ${(t.ips || [])[0] || ''}${t.plex_online != null ? (t.plex_online ? ', Plex online' : ', Plex offline') : ''}` : `Tailscale ${t.state || 'okänd'}`;
+    $('pill-gamepad').classList.toggle('on', (s.gamepads || []).length > 0);
+  }
+  b.on('state', (s) => applyStatus(s.status));
+
   render();
   // Land on the first tile, not the search field, so Enter does not pop the keyboard.
   requestAnimationFrame(() => M.nav.focus(tilesEl.firstElementChild, { scroll: false }));

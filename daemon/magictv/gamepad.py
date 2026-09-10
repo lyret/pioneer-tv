@@ -150,14 +150,30 @@ def is_gamepad(dev: evdev.InputDevice) -> bool:
     return e.BTN_SOUTH in keys or e.BTN_GAMEPAD in keys
 
 
+def is_keyboard(dev: evdev.InputDevice) -> bool:
+    """A real keyboard: letters and Enter, and not one of our virtual devices."""
+    if dev.name.startswith("Magic TV"):
+        return False
+    keys = set(dev.capabilities().get(e.EV_KEY, []))
+    return e.KEY_A in keys and e.KEY_Z in keys and e.KEY_ENTER in keys and e.BTN_SOUTH not in keys
+
+
 class GamepadManager:
     def __init__(self, cfg: dict, dispatcher: Dispatcher, mouse: MouseDriver,
-                 on_change: Callable[[bool, str], Coroutine]) -> None:
+                 on_change: Callable[[bool, str], Coroutine],
+                 on_keyboard: Callable[[bool], Coroutine] | None = None) -> None:
         self.cfg = cfg
         self.dispatcher = dispatcher
         self.mouse = mouse
         self.on_change = on_change
+        self.on_keyboard = on_keyboard
         self.active: dict[str, asyncio.Task] = {}
+        self.instances: dict[str, Gamepad] = {}
+        self.keyboards: set[str] = set()
+        self.keyboard_present = False
+
+    def pads(self) -> list[Gamepad]:
+        return list(self.instances.values())
 
     async def run(self) -> None:
         while True:
@@ -169,6 +185,7 @@ class GamepadManager:
 
     async def scan(self) -> None:
         present = set()
+        keyboards = set()
         for path in evdev.list_devices():
             if path in self.active:
                 present.add(path)
@@ -177,16 +194,27 @@ class GamepadManager:
                 dev = evdev.InputDevice(path)
             except OSError:
                 continue
-            if not is_gamepad(dev):
-                dev.close()
+            if is_gamepad(dev):
+                present.add(path)
+                pad = Gamepad(dev, self.cfg, self.dispatcher, self.mouse)
+                self.instances[path] = pad
+                self.active[path] = asyncio.create_task(pad.run())
+                log.info("gamepad connected: %s", dev.name)
+                await self.on_change(True, dev.name)
                 continue
-            present.add(path)
-            pad = Gamepad(dev, self.cfg, self.dispatcher, self.mouse)
-            self.active[path] = asyncio.create_task(pad.run())
-            log.info("gamepad connected: %s", dev.name)
-            await self.on_change(True, dev.name)
+            if is_keyboard(dev):
+                keyboards.add(path)
+            dev.close()
         for path in list(self.active):
             if path not in present or self.active[path].done():
                 self.active.pop(path).cancel()
-                log.info("gamepad removed: %s", path)
-                await self.on_change(False, path)
+                pad = self.instances.pop(path, None)
+                name = pad.dev.name if pad else path
+                log.info("gamepad removed: %s", name)
+                await self.on_change(False, name)
+        if keyboards != self.keyboards:
+            self.keyboards = keyboards
+            self.keyboard_present = bool(keyboards)
+            log.info("physical keyboard %s", "present" if keyboards else "absent")
+            if self.on_keyboard:
+                await self.on_keyboard(self.keyboard_present)

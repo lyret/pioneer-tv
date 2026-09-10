@@ -42,6 +42,7 @@ body:hover { cursor: default; } /* pointer appears when the right stick moves it
 .pill { opacity: 0.3; transition: opacity 200ms; }
 .pill.on { opacity: 1; }
 #pill-daemon.on { color: #4ade80; }
+.pill.warn { opacity: 1; filter: sepia(1) saturate(4) hue-rotate(-20deg); }
 .clock { font-variant-numeric: tabular-nums; font-weight: 600; }
 
 /* ---- content ---- */

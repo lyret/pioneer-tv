@@ -154,7 +154,7 @@ window.MagicTV = window.MagicTV || {};
       }
       if (e.key === 'Enter') {
         if (this.isTextField(active)) {
-          if (M.bridge && M.bridge.state.tvMode && M.keyboard && !M.keyboard.isOpen()) {
+          if (M.bridge && M.bridge.autoKeyboard() && M.keyboard && !M.keyboard.isOpen()) {
             e.preventDefault(); e.stopImmediatePropagation();
             M.keyboard.open(active);
           }
@@ -179,7 +179,7 @@ window.MagicTV = window.MagicTV || {};
       });
       // Real pointer (right stick) clicks: keep our ring on the clicked thing.
       document.addEventListener('click', (e) => {
-        if (M.bridge && M.bridge.state.tvMode && this.isTextField(e.target) && M.keyboard && !M.keyboard.isOpen()) M.keyboard.open(e.target);
+        if (M.bridge && M.bridge.autoKeyboard() && this.isTextField(e.target) && M.keyboard && !M.keyboard.isOpen()) M.keyboard.open(e.target);
       }, true);
     },
   };

@@ -17,7 +17,7 @@ apt-get install -y --no-install-recommends \
   chromium-browser libwidevinecdm0 \
   v4l-utils \
   bluez \
-  python3 python3-evdev python3-websockets \
+  python3 python3-evdev python3-aiohttp \
   zram-tools cpufrequtils \
   fonts-noto-core fonts-noto-color-emoji
 
@@ -33,6 +33,8 @@ cp "$REPO/system/weston.ini" "$HOME_DIR/.config/weston.ini"
 chown -R "$USER_NAME:$USER_NAME" "$HOME_DIR/.config"
 cp "$REPO/system/99-magic-tv.rules" /etc/udev/rules.d/
 cp "$REPO/system/magic-tv-daemon.service" "$REPO/system/magic-tv-weston.service" /etc/systemd/system/
+
+echo "$REPO" > /etc/magic-tv/repo
 
 echo "== groups"
 usermod -aG video,render,input,audio "$USER_NAME"

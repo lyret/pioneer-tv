@@ -20,12 +20,17 @@ RE_UI_CMD = re.compile(r"ui-cmd:\s*([a-z0-9-]+)", re.I)
 class Cec:
     def __init__(self, cfg: dict, on_event: Callable[[dict], Coroutine]) -> None:
         self.cfg = cfg["cec"]
-        self.enabled = self.cfg["enabled"]
+        self._available = True  # False once cec-ctl is missing or the device failed
+        self.last_power: str | None = None
         self.device = self.cfg["device"]
         self.tv = str(self.cfg["tv_address"])
         self.on_event = on_event
         self.phys_addr = "1.0.0.0"
         self._lock = asyncio.Lock()
+
+    @property
+    def enabled(self) -> bool:
+        return bool(self.cfg["enabled"]) and self._available
 
     async def _ctl(self, *args: str, timeout: float = 4.0) -> str:
         if not self.enabled:
@@ -56,7 +61,7 @@ class Cec:
             log.info("CEC registered as playback device, physical address %s", self.phys_addr)
         except (FileNotFoundError, RuntimeError) as exc:
             log.error("CEC setup failed (%s); disabling CEC", exc)
-            self.enabled = False
+            self._available = False
 
     async def to_tv(self, *args: str) -> str:
         return await self._ctl("--to", self.tv, *args)
@@ -68,13 +73,16 @@ class Cec:
     async def power_status(self) -> str:
         out = await self.to_tv("--give-device-power-status")
         m = RE_POWER.search(out)
-        return m.group(1).lower() if m else "unknown"
+        self.last_power = m.group(1).lower() if m else "unknown"
+        return self.last_power
 
     async def tv_on(self) -> None:
+        self.last_power = "on"
         await self.to_tv("--image-view-on")
         await self._ctl("--active-source", f"phys-addr={self.phys_addr}")
 
     async def tv_off(self) -> None:
+        self.last_power = "standby"
         await self.to_tv("--standby")
 
     async def command(self, name: str) -> None:
@@ -101,9 +109,10 @@ class Cec:
 
     async def monitor(self, remote_press: Callable[[str, bool], Coroutine]) -> None:
         """Follow TV messages: standby/wake, and remote keys forwarded to us."""
-        if not self.enabled or not self.cfg["monitor"]:
-            return
-        while self.enabled:
+        while self._available:
+            if not self.enabled or not self.cfg["monitor"]:
+                await asyncio.sleep(5)
+                continue
             try:
                 proc = await asyncio.create_subprocess_exec(
                     "cec-ctl", "-d", self.device, "--monitor",
@@ -118,8 +127,10 @@ class Cec:
                     line = raw.decode(errors="replace").strip()
                     upper = line.upper()
                     if "STANDBY" in upper and "RECEIVED" in upper:
+                        self.last_power = "standby"
                         await self.on_event({"type": "event", "name": "tv", "power": "standby"})
                     elif ("IMAGE_VIEW_ON" in upper or "SET_STREAM_PATH" in upper or "ACTIVE_SOURCE" in upper) and "RECEIVED" in upper:
+                        self.last_power = "on"
                         await self.on_event({"type": "event", "name": "tv", "power": "on"})
                     elif "USER_CONTROL_PRESSED" in upper:
                         pending_key = "?"

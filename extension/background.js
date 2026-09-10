@@ -4,7 +4,7 @@
 // events to the page that is currently shown. Also keeps Chromium in a
 // single-tab, kiosk-friendly state and handles the developer shortcuts.
 
-const DAEMON_URL = 'ws://127.0.0.1:8765';
+const DAEMON_URL = 'ws://127.0.0.1:8765/ws';
 const LAUNCHER_URL = chrome.runtime.getURL('launcher/index.html');
 const RECONNECT_MS = 2000;
 const PING_MS = 20000; // WebSocket traffic keeps the MV3 worker alive.
@@ -12,6 +12,7 @@ const PING_MS = 20000; // WebSocket traffic keeps the MV3 worker alive.
 let socket = null;
 let daemonConnected = false;
 let config = null;
+let status = null;
 let pingTimer = null;
 
 // ---------------------------------------------------------------- daemon link
@@ -57,6 +58,11 @@ async function handleDaemonMessage(msg) {
     return;
   }
   if (msg.type === 'pong') return;
+  if (msg.type === 'status') {
+    status = msg;
+    broadcastState();
+    return;
+  }
   if (msg.type === 'event') {
     if (msg.name === 'home') return goHome();
     if (msg.name === 'reload') return reloadActive();
@@ -98,7 +104,7 @@ async function forwardToActiveTab(msg) {
 }
 
 async function broadcastState() {
-  const state = { type: 'state', daemonConnected, config };
+  const state = { type: 'state', daemonConnected, config, status };
   const tabs = await chrome.tabs.query({});
   for (const t of tabs) chrome.tabs.sendMessage(t.id, state).catch(() => {});
 }
@@ -131,7 +137,7 @@ chrome.tabs.onCreated.addListener(async (newTab) => {
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   switch (msg.type) {
     case 'getState':
-      reply({ type: 'state', daemonConnected, config });
+      reply({ type: 'state', daemonConnected, config, status });
       return false;
     case 'home':
       goHome();
@@ -141,6 +147,9 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       break;
     case 'back':
       goBack();
+      break;
+    case 'settings':
+      activeTab().then((tab) => tab && chrome.tabs.update(tab.id, { url: (config && config.settings_url) || 'http://127.0.0.1:8765/' }));
       break;
     case 'navigate':
       if (sender.tab) chrome.tabs.update(sender.tab.id, { url: msg.url });

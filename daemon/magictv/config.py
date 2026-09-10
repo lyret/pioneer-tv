@@ -70,6 +70,8 @@ DEFAULTS: dict[str, Any] = {
         },
     },
     "mouse": {"deadzone": 0.15, "max_speed": 1100.0, "curve": 2.0, "hz": 60},
+    "ui": {"auto_keyboard": True},
+    "remote": {"token": ""},
     "services": [],
 }
 

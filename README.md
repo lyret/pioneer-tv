@@ -10,7 +10,7 @@ build for Cineasterna. Magic TV is everything around that:
 | Part | What it does |
 | --- | --- |
 | `extension/` | Chromium extension: the launcher page, d-pad spatial navigation on any site, an on-screen keyboard for search, a quick menu and toasts. |
-| `daemon/` | Python daemon: gamepad → virtual keyboard and mouse (uinput), HDMI-CEC volume and power, TV remote passthrough, WebSocket bridge to the extension. |
+| `daemon/` | Python daemon: gamepad → virtual keyboard and mouse (uinput), HDMI-CEC volume and power, TV remote passthrough, system status, a settings page with JSON API, WebSocket bridge to the extension. |
 | `system/` | Weston kiosk config, Chromium start script, systemd units, udev rule and the install script. |
 
 ## Designing the launcher (no Pi needed)
@@ -40,6 +40,37 @@ spatial navigation and the overlays, and these shortcuts work:
 
 The launcher is at `chrome-extension://dpigdefepjjejbkidlabpjlnleidgjaf/launcher/index.html`
 (the ID is fixed by the key in the manifest).
+
+## Settings and status
+
+The daemon serves a settings page at `http://127.0.0.1:8765/`. On the TV it is
+reached from the quick menu (Start → Inställningar), where the spatial
+navigation and on-screen keyboard work like on any other page; a USB keyboard
+works too, and while one is plugged in the on-screen keyboard stays out of the
+way. The quick menu itself shows Wi-Fi, Tailscale (and whether the Plex peer is
+online), connected gamepads with battery, and temperature.
+
+The page has: status (network, Tailscale, CEC, gamepads, thermals and power
+throttling), Wi-Fi networks with connect and forget, Bluetooth scan and pairing
+for any number of gamepads, the services shown on the launcher, controller
+tuning, TV behaviour, and system actions (restart Chromium, reboot, update from
+git, logs). Changes are saved to `/etc/magic-tv/settings.json` and applied
+without a restart; `config.toml` remains the place for the full button map.
+
+To design the settings page without a Pi, open
+`daemon/magictv/web/settings.html?mock=1` in a browser. It is responsive, so the
+same page works on a phone.
+
+**Remote access.** Keep the daemon on localhost and publish it to your tailnet:
+
+```
+sudo tailscale serve --bg 8765
+```
+
+Then the page is at `https://<pi-name>.<tailnet>.ts.net/` from any of your
+devices, with Tailscale doing the authentication. If you instead bind the daemon
+to `0.0.0.0` in `config.toml`, set an access key under Fjärråtkomst; non-local
+requests must then carry it (`?token=` once, stored as a cookie).
 
 ## Gamepad mapping
 
@@ -71,10 +102,10 @@ sudo system/install.sh
 sudo reboot
 ```
 
-The installer pulls in Weston, Chromium, Widevine, v4l-utils, BlueZ and the
-Python deps, copies the repo to `/opt/magic-tv`, installs the systemd units,
+The installer pulls in Weston, Chromium, Widevine, v4l-utils, BlueZ, aiohttp and
+evdev, copies the repo to `/opt/magic-tv`, installs the systemd units,
 forces a 720p mode, enables zram and the performance governor, and sets the
-boot target to graphical. Pair the gamepad once:
+boot target to graphical. Pair the first gamepad from the shell (later ones from the settings page):
 
 ```
 bluetoothctl
@@ -83,6 +114,8 @@ bluetoothctl
   trust <MAC>
   connect <MAC>
 ```
+
+Tailscale is optional: `curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up`.
 
 Log in to Cineasterna and Plex once with the on-screen keyboard; the Chromium
 profile in `~/.magic-tv/chromium` remembers the sessions.
@@ -93,6 +126,7 @@ profile in `~/.magic-tv/chromium` remembers the sessions.
 journalctl -fu magic-tv-daemon        # gamepad, CEC and bridge log
 journalctl -fu magic-tv-weston        # Weston and Chromium output
 sudo python3 -m magictv -v            # run the daemon in the foreground (from /opt/magic-tv/daemon)
+curl -s localhost:8765/api/status     # what the settings page sees
 cec-ctl -d /dev/cec0 --to 0 --standby # TV off, straight from the shell
 vcgencmd get_throttled                # 0x0 means the TV's USB port is enough
 ```
@@ -102,8 +136,9 @@ vcgencmd get_throttled                # 0x0 means the TV's USB port is enough
 ```
  gamepad ──evdev──▶ daemon ──uinput──▶ Weston ──▶ Chromium (kiosk, --load-extension)
                       │                              ├─ content scripts: spatial nav, keyboard, HUD
-                      │◀────── ws://127.0.0.1:8765 ──┤  background: single tab, home, dev shortcuts
-                      └──cec-ctl──▶ /dev/cec0 ──▶ TV   launcher page: services from config.toml
+                      │◀────── ws://127.0.0.1:8765/ws ┤  background: single tab, home, dev shortcuts
+                      │──── http://127.0.0.1:8765/ ───▶│  launcher page: services from config
+                      └──cec-ctl──▶ /dev/cec0 ──▶ TV     settings page: status, Wi-Fi, Bluetooth, services
 ```
 
 Navigation keys go through a virtual keyboard so every page, and Chromium

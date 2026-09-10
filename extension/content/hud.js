@@ -29,6 +29,7 @@ window.MagicTV = window.MagicTV || {};
         const tv = b && b.state.daemonConnected;
         this.items = [
           { label: 'Hem', icon: '⌂', run: () => b.home() },
+          { label: 'Inställningar', icon: '⚙', run: () => b.settings() },
           { label: 'Tangentbord', icon: '⌨', run: () => M.keyboard.toggle() },
           { label: 'Tillbaka', icon: '‹', run: () => (b.available ? b.send({ type: 'back' }) : history.back()) },
           { label: 'Ladda om sidan', icon: '↻', run: () => location.reload() },
@@ -45,6 +46,7 @@ window.MagicTV = window.MagicTV || {};
         title.className = 'magictv-menu-title';
         title.textContent = 'Magic TV';
         panel.appendChild(title);
+        panel.appendChild(this.statusBlock(b.state.status, tv));
         this.items.forEach((it, i) => {
           const el = document.createElement('div');
           el.className = 'magictv-menu-item' + (it.disabled ? ' magictv-menu-disabled' : '');
@@ -68,6 +70,30 @@ window.MagicTV = window.MagicTV || {};
         if (this.root) this.root.remove();
         this.root = null;
         if (M.nav.captured === this) M.nav.captured = null;
+      },
+      // Compact status rows at the top of the menu: Wi-Fi, Tailscale, pads, temperature.
+      statusBlock(s, connected) {
+        const box = document.createElement('div');
+        box.className = 'magictv-menu-status';
+        const row = (cls, icon, text) => {
+          const r = document.createElement('div');
+          r.className = 'magictv-menu-statusrow';
+          r.innerHTML = `<span class="magictv-menu-dot ${cls}"></span><span class="magictv-menu-icon">${icon}</span><span></span>`;
+          r.lastElementChild.textContent = text;
+          box.appendChild(r);
+        };
+        if (!connected || !s) { row('bad', '●', connected ? 'Väntar på status…' : 'Ingen daemon (designläge)'); return box; }
+        const w = s.wifi || {}, t = s.tailscale || {}, sys = s.system || {};
+        const eth = (s.interfaces || []).find((i) => i.name.startsWith('e') && i.addresses.length);
+        if (w.state === 'connected') row('ok', '📶', `${w.ssid}${w.signal != null ? ` ${w.signal}%` : ''}`);
+        else if (eth) row('ok', '🔌', `Ethernet ${eth.addresses[0]}`);
+        else row('bad', '📶', 'Inget nätverk');
+        if (t.state === 'running') row(t.plex_online === false ? 'warn' : 'ok', '🔗', `Tailscale${t.plex_online != null ? (t.plex_online ? ' · Plex online' : ' · Plex offline') : ''}`);
+        else row(t.installed ? 'warn' : 'bad', '🔗', t.installed ? `Tailscale ${t.state}` : 'Tailscale saknas');
+        const pads = s.gamepads || [];
+        row(pads.length ? 'ok' : 'warn', '🎮', pads.length ? pads.map((p) => p.name + (p.battery != null ? ` ${p.battery}%` : '')).join(', ') : 'Ingen handkontroll');
+        row(sys.throttled_now ? 'bad' : sys.throttled_ever ? 'warn' : 'ok', '🌡', `${sys.temp_c != null ? sys.temp_c + ' °C' : '–'}${sys.throttled_now ? ' · underspänning' : ''}`);
+        return box;
       },
       highlight() { this.items.forEach((it, i) => it.el.classList.toggle('magictv-menu-active', i === this.index)); },
       activate() {
