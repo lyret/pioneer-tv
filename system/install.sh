@@ -57,6 +57,9 @@ mkdir -p /var/lib/pioneer-tv
 cp "$REPO/system/weston.ini" "$HOME_DIR/.config/weston.ini"
 chown -R "$USER_NAME:$USER_NAME" "$HOME_DIR/.config"
 cp "$REPO/system/99-pioneer-tv.rules" /etc/udev/rules.d/
+# Chromium policies: no translate bubble, password prompts, notifications, sign-in.
+mkdir -p /etc/chromium/policies/managed
+cp "$REPO/system/chromium-policies.json" /etc/chromium/policies/managed/pioneer-tv.json
 cp "$REPO/system/pioneer-tv-daemon.service" "$REPO/system/pioneer-tv-weston.service" "$REPO/system/pioneer-tv-governor.service" /etc/systemd/system/
 
 echo "$REPO" > /etc/pioneer-tv/repo

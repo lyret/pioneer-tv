@@ -129,6 +129,8 @@ class Server:
                     log.info("page: %s", self.current_url)
                 elif t == "hello":
                     log.info("hello from %s %s", data.get("client"), data.get("version"))
+                elif t == "debug":
+                    log.info("extension: %s", str(data.get("text", ""))[:500])
                 else:
                     await self.on_command(data)
         finally:

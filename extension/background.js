@@ -204,29 +204,49 @@ async function boot() {
 // itself, on browser start and on (re)load of the unpacked extension.
 const isIdleUrl = (url) => !url || url === 'about:blank' || url === 'chrome://newtab/' || url.startsWith('chrome-error://');
 
-async function takeOver() {
-  let tabs = [];
-  try { tabs = await chrome.tabs.query({}); } catch { return false; }
-  const idle = tabs.find((t) => isIdleUrl(t.url) && isIdleUrl(t.pendingUrl));
-  if (idle) { await chrome.tabs.update(idle.id, { url: LAUNCHER_URL, active: true }); return true; }
-  if (tabs.length === 0) { await chrome.tabs.create({ url: LAUNCHER_URL }); return true; }
-  return tabs.some((t) => (t.url || '').startsWith(LAUNCHER_URL)) || tabs.length > 0;
+// Debug trail: console plus the daemon's log (journalctl -u pioneer-tv-daemon).
+function debug(text) {
+  console.log('[pioneer-tv]', text);
+  send({ type: 'debug', text });
 }
 
-// The window and its first tab may not exist yet when the worker wakes, so
-// keep trying for a while after start.
-function takeOverSoon() {
-  [0, 500, 1500, 3000, 6000, 10000].forEach((ms) => setTimeout(() => takeOver(), ms));
+let tookOver = false;
+async function takeOver(reason) {
+  if (tookOver) return true;
+  let tabs = [];
+  try { tabs = await chrome.tabs.query({}); } catch (e) { debug(`takeover (${reason}): tabs.query failed: ${e.message}`); return false; }
+  const summary = tabs.map((t) => `${t.id}:${t.url || t.pendingUrl || '?'}`).join(' ') || 'no tabs';
+  if (tabs.some((t) => (t.url || '').startsWith(LAUNCHER_URL))) { tookOver = true; debug(`takeover (${reason}): already on launcher [${summary}]`); return true; }
+  const idle = tabs.find((t) => isIdleUrl(t.url) && isIdleUrl(t.pendingUrl));
+  try {
+    if (idle) { await chrome.tabs.update(idle.id, { url: LAUNCHER_URL, active: true }); tookOver = true; debug(`takeover (${reason}): navigated tab ${idle.id} [${summary}]`); return true; }
+    if (tabs.length === 0) { await chrome.tabs.create({ url: LAUNCHER_URL }); tookOver = true; debug(`takeover (${reason}): created tab`); return true; }
+  } catch (e) {
+    debug(`takeover (${reason}): failed: ${e.message} [${summary}]`);
+    return false;
+  }
+  debug(`takeover (${reason}): nothing idle [${summary}]`);
+  return false;
+}
+
+// The window and its first tab may not exist yet when the worker wakes, and a
+// Pi 3 takes a while to get there, so keep trying for a minute.
+function takeOverSoon(reason) {
+  let n = 0;
+  const tick = () => { if (!tookOver && n++ < 30) takeOver(`${reason} #${n}`).then((ok) => { if (!ok) setTimeout(tick, 2000); }); };
+  tick();
 }
 
 // A lone tab that settles on about:blank is the kiosk's start page: take it.
 chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
-  if (info.status !== 'complete' || !isIdleUrl(tab.url)) return;
+  if (tookOver || info.status !== 'complete' || !isIdleUrl(tab.url)) return;
   const all = await chrome.tabs.query({});
-  if (all.length === 1) chrome.tabs.update(tabId, { url: LAUNCHER_URL, active: true });
+  if (all.length === 1) takeOver('tab settled');
 });
+chrome.tabs.onCreated.addListener(() => { if (!tookOver) setTimeout(() => takeOver('tab created'), 300); });
+chrome.windows.onCreated.addListener(() => { if (!tookOver) setTimeout(() => takeOver('window created'), 300); });
 
-chrome.runtime.onStartup.addListener(async () => { await boot(); takeOverSoon(); });
-chrome.runtime.onInstalled.addListener(async () => { await boot(); takeOverSoon(); });
+chrome.runtime.onStartup.addListener(async () => { debug('onStartup'); await boot(); takeOverSoon('startup'); });
+chrome.runtime.onInstalled.addListener(async (d) => { debug(`onInstalled ${d.reason}`); await boot(); takeOverSoon('installed'); });
 boot();
-takeOverSoon();
+takeOverSoon('worker start');

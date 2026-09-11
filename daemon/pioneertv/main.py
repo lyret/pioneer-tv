@@ -167,6 +167,8 @@ async def amain(cfg: dict) -> None:
     pads_mgr = GamepadManager(cfg, dispatcher, mouse, on_gamepad_change, on_keyboard_change)
 
     await cec.setup()
+    # A USB adapter may come up powered off; paired pads only reconnect to a powered adapter.
+    await sysinfo.run("bluetoothctl", "power", "on", timeout=10)
     tasks = [
         asyncio.create_task(server.run(), name="server"),
         asyncio.create_task(pads_mgr.run(), name="gamepads"),
