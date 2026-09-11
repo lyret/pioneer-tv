@@ -51,6 +51,7 @@ class Server:
             ("POST", "/api/bluetooth/{action}", self.api_bt_action),
             ("POST", "/api/cec", self.api_cec),
             ("GET", "/api/cec/trace", self.api_cec_trace),
+            ("GET", "/api/input/events", self.api_input_events),
             ("GET", "/api/cec/topology", self.api_cec_topology),
             ("POST", "/api/cec/raw", self.api_cec_raw),
             ("POST", "/api/system", self.api_system),
@@ -209,6 +210,11 @@ class Server:
         except Exception as exc:
             return web.json_response({"ok": False, "message": str(exc)}, status=400)
         return web.json_response({"ok": True})
+
+    async def api_input_events(self, request: web.Request) -> web.Response:
+        from .gamepad import TRACE
+        since = float(request.query.get("since", "0"))
+        return web.json_response([ev for ev in TRACE if ev["t"] > since])
 
     async def api_cec_trace(self, request: web.Request) -> web.Response:
         return web.Response(text=self.hooks["cec_trace"](), content_type="text/plain")

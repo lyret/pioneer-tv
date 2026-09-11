@@ -6,7 +6,9 @@ gamepad. Buttons and axes are mapped through the config to Dispatcher actions.
 from __future__ import annotations
 
 import asyncio
+import collections
 import logging
+import time
 from typing import Callable, Coroutine
 
 import evdev
@@ -15,6 +17,34 @@ from evdev import ecodes as e
 from .actions import Dispatcher
 
 log = logging.getLogger("pioneertv.gamepad")
+
+# Rolling record of raw events from every pad: /api/input/events and the
+# Testa section of the settings page.
+TRACE: collections.deque = collections.deque(maxlen=300)
+
+
+def _trace(dev_name: str, kind: str, code: str, value, mapped) -> None:
+    TRACE.append({"t": time.time(), "device": dev_name, "kind": kind, "code": code, "value": value, "mapped": mapped})
+
+
+def describe(action) -> str | None:
+    """Short human label for a mapping, for the trace."""
+    if not action:
+        return None
+    if "mouse" in action:
+        return f"mus {action['mouse']}"
+    if "negative" in action or "positive" in action:
+        return " / ".join(describe(action.get(k)) or "-" for k in ("negative", "positive"))
+    if "key" in action:
+        mods = "+".join(m.replace("KEY_LEFT", "") for m in action.get("modifiers", []))
+        return (mods + "+" if mods else "") + action["key"].replace("KEY_", "")
+    if "mouse_button" in action:
+        return action["mouse_button"].replace("BTN_", "mus ")
+    if "cec" in action:
+        return "TV " + action["cec"]
+    if "system" in action:
+        return action["system"]
+    return "?"
 
 # Per-device quirks by name substring: axis inversion and button overrides
 # (merged over the configured button map). The Nintendo driver reports stick
@@ -33,7 +63,7 @@ QUIRKS = [
         "BTN_Z": {"key": "KEY_RIGHT", "modifiers": ["KEY_LEFTALT"]},    # R1: browser forward
         "BTN_TL": {"cec": "volume_down", "repeat": True},               # L2
         "BTN_TR": {"cec": "volume_up", "repeat": True},                 # R2
-        "KEY_HOMEPAGE": {"system": "menu", "long": {"system": "home"}},
+        "KEY_HOMEPAGE": {"system": "home"},   # pause: only reports after a long hold
     }}),
 ]
 
@@ -66,6 +96,12 @@ class Gamepad:
             if code is not None:
                 self.axes[code] = spec
         self.absinfo = {code: info for code, info in dev.capabilities().get(e.EV_ABS, [])}
+        # No ABS_RX/RY but a signed ABS_Z/RZ: that is the right stick (generic HID pads).
+        if e.ABS_RX not in self.absinfo and e.ABS_Z in self.absinfo and self.absinfo[e.ABS_Z].min < 0:
+            self.axes[e.ABS_Z] = {"mouse": "x"}
+            if e.ABS_RZ in self.absinfo:
+                self.axes[e.ABS_RZ] = {"mouse": "y"}
+            log.info("%s: right stick on ABS_Z/ABS_RZ", dev.name)
         self.unipolar = {getattr(e, n) for n in self.cfg["unipolar_axes"] if hasattr(e, n)}
         invert = list(self.cfg.get("invert_axes") or [])
         for needle, quirk in QUIRKS:
@@ -101,6 +137,11 @@ class Gamepad:
 
     async def on_key(self, code: int, value: int) -> None:
         action = self.buttons.get(code)
+        if value != 2:
+            name = e.KEY.get(code) or e.BTN.get(code) or str(code)
+            if isinstance(name, list):
+                name = name[0]
+            _trace(self.dev.name, "key", name, value, describe(action))
         if action is None or value == 2:  # 2 = autorepeat
             return
         if value:
@@ -110,9 +151,11 @@ class Gamepad:
 
     async def on_abs(self, code: int, value: int) -> None:
         spec = self.axes.get(code)
+        v = self.normalize(code, value) if code in self.absinfo else float(value)
+        if abs(v) > 0.9 or value == 0:  # full swings and releases only
+            _trace(self.dev.name, "abs", e.ABS.get(code, str(code)), value, describe(spec))
         if spec is None:
             return
-        v = self.normalize(code, value)
         if "mouse" in spec:
             self.mouse.set_axis(spec["mouse"], v)
             return
