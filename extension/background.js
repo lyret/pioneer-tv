@@ -199,13 +199,16 @@ async function boot() {
   connect();
 }
 
-chrome.runtime.onStartup.addListener(async () => {
-  await boot();
-  // The kiosk start script opens about:blank; take the tab to the launcher.
+// The kiosk start script opens about:blank: Chromium refuses chrome-extension://
+// URLs given on the command line. The extension takes the tab to the launcher
+// itself, on browser start and on (re)load of the unpacked extension.
+async function takeOver() {
   const tabs = await chrome.tabs.query({});
-  const blank = tabs.find((t) => !t.url || t.url === 'about:blank' || t.url === 'chrome://newtab/');
-  if (blank) chrome.tabs.update(blank.id, { url: LAUNCHER_URL });
-  else if (tabs.length === 0) chrome.tabs.create({ url: LAUNCHER_URL });
-});
-chrome.runtime.onInstalled.addListener(boot);
+  const idle = tabs.find((t) => !t.url || t.url === 'about:blank' || t.url === 'chrome://newtab/' || t.url.startsWith('chrome-error://'));
+  if (idle) return chrome.tabs.update(idle.id, { url: LAUNCHER_URL, active: true });
+  if (tabs.length === 0) return chrome.tabs.create({ url: LAUNCHER_URL });
+}
+
+chrome.runtime.onStartup.addListener(async () => { await boot(); takeOver(); });
+chrome.runtime.onInstalled.addListener(async () => { await boot(); takeOver(); });
 boot();

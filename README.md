@@ -177,7 +177,8 @@ profile in `~/.pioneer-tv/chromium` remembers the sessions.
 
 ```
 journalctl -fu pioneer-tv-daemon        # gamepad, CEC and bridge log
-journalctl -fu pioneer-tv-weston        # Weston and Chromium output
+journalctl -fu pioneer-tv-weston        # Weston output
+tail -f ~/.pioneer-tv/chromium.log      # Chromium output (extension load errors land here)
 sudo python3 -m pioneertv -v            # run the daemon in the foreground (from /opt/pioneer-tv/daemon)
 curl -s localhost:8765/api/status     # what the settings page sees
 cec-ctl -d /dev/cec0 --to 0 --standby # TV off, straight from the shell

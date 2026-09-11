@@ -294,7 +294,7 @@
 
     async system(show) {
       const logs = h('pre', { class: 'log' }, 'Hämtar…');
-      const unit = h('select', { onchange: () => loadLogs() }, ['pioneer-tv-daemon', 'pioneer-tv-weston', 'pioneer-tv-update', 'bluetooth', 'NetworkManager', 'tailscaled'].map((u) => h('option', { value: u }, u)));
+      const unit = h('select', { onchange: () => loadLogs() }, ['pioneer-tv-daemon', 'pioneer-tv-weston', 'chromium', 'pioneer-tv-update', 'bluetooth', 'NetworkManager', 'tailscaled'].map((u) => h('option', { value: u }, u)));
       const loadLogs = async () => { logs.textContent = await api('GET', `/api/logs?unit=${unit.value}&lines=150`); logs.scrollTop = logs.scrollHeight; };
       // ---- update from the git repo
       const upd = h('div', { class: 'card pioneertv-card update' });

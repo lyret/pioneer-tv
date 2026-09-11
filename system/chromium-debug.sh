@@ -19,5 +19,5 @@ exec "$BIN" \
   --load-extension="$PIONEER_TV_DIR/extension" \
   --disable-features=DisableLoadExtensionCommandLineSwitch \
   --no-first-run --noerrdialogs --disable-infobars --password-store=basic \
-  "chrome://extensions/" "chrome-extension://dpigdefepjjejbkidlabpjlnleidgjaf/launcher/index.html" \
+  "chrome://extensions/" \
   2>&1 | grep -v -E "^\[.*(dbus|gbm|EGL)" 

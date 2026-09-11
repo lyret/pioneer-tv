@@ -232,6 +232,13 @@ class Server:
 
     async def api_logs(self, request: web.Request) -> web.Response:
         unit = request.query.get("unit", "pioneer-tv-daemon")
+        if unit == "chromium":
+            path = Path((self.cfg.get("chromium") or {}).get("log_file") or "/home/pi/.pioneer-tv/chromium.log")
+            try:
+                lines = path.read_text(errors="replace").splitlines()[-int(request.query.get("lines", "200")):]
+                return web.Response(text="\n".join(lines) or "(tom)", content_type="text/plain")
+            except OSError as exc:
+                return web.Response(text=f"Ingen Chromium-logg: {exc}", content_type="text/plain")
         if unit not in ("pioneer-tv-daemon", "pioneer-tv-weston", "pioneer-tv-update", "bluetooth", "NetworkManager", "tailscaled"):
             raise web.HTTPBadRequest(text="unknown unit")
         lines = max(10, min(int(request.query.get("lines", "120")), 1000))

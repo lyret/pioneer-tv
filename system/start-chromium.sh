@@ -11,7 +11,10 @@ CACHE=${PIONEER_TV_CACHE:-/dev/shm/pioneer-tv-cache}   # RAM: the SD card must n
 EXTRA_FLAGS=${PIONEER_TV_CHROMIUM_FLAGS:-}
 [ -f /etc/pioneer-tv/chromium.env ] && . /etc/pioneer-tv/chromium.env
 
-mkdir -p "$PROFILE" "$CACHE"
+LOG=${PIONEER_TV_CHROMIUM_LOG:-$HOME/.pioneer-tv/chromium.log}
+mkdir -p "$PROFILE" "$CACHE" "$(dirname "$LOG")"
+# Weston does not pass our output to the journal; keep the last run's log.
+exec > "$LOG" 2>&1
 
 # Clear "restore session" prompts left by hard power cuts.
 for f in "$PROFILE/Default/Preferences"; do
@@ -43,4 +46,4 @@ exec "$BIN" \
   --check-for-update-interval=31536000 \
   --lang=sv-SE \
   $EXTRA_FLAGS \
-  "chrome-extension://$EXT_ID/launcher/index.html"
+  "about:blank"   # the extension navigates to its launcher itself

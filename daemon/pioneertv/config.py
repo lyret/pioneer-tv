@@ -71,6 +71,7 @@ DEFAULTS: dict[str, Any] = {
     },
     "mouse": {"deadzone": 0.15, "max_speed": 1100.0, "curve": 2.0, "hz": 60},
     "ui": {"auto_keyboard": True},
+    "chromium": {"log_file": "/home/pi/.pioneer-tv/chromium.log"},
     "remote": {"token": ""},
     "services": [],
 }
