@@ -28,10 +28,15 @@ for f in "$PROFILE/Default/Preferences"; do
   [ -f "$f" ] && sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/; s/"exited_cleanly":false/"exited_cleanly":true/' "$f"
 done
 
-BIN=$(command -v chromium-browser || command -v chromium)
+BIN=${PIONEER_TV_CHROMIUM_BIN:-$(command -v chromium-browser || command -v chromium)}
+DEVTOOLS_PORT=${PIONEER_TV_DEVTOOLS_PORT:-9222}   # 127.0.0.1 only; used to open the launcher
 echo "pioneer-tv: $($BIN --version 2>/dev/null), extension $PIONEER_TV_DIR/extension ($(grep -o '"version": "[^"]*"' "$PIONEER_TV_DIR/extension/manifest.json")), extra flags: ${EXTRA_FLAGS:-none}"
 
-exec "$BIN" \
+# Open the launcher through the DevTools port once Chromium is up (see open-launcher.sh).
+"$PIONEER_TV_DIR/system/open-launcher.sh" "$DEVTOOLS_PORT" "$EXT_ID" 120 &
+
+"$BIN" \
+  --remote-debugging-port="$DEVTOOLS_PORT" \
   --ozone-platform=wayland \
   --kiosk \
   --window-size=1280,720 \
@@ -51,4 +56,7 @@ exec "$BIN" \
   --check-for-update-interval=31536000 \
   --lang=sv-SE \
   $EXTRA_FLAGS \
-  "about:blank"   # the extension navigates to its launcher itself
+  "about:blank" &
+CHROMIUM_PID=$!
+# Exit when Chromium exits so Weston's autolaunch watch restarts everything.
+wait "$CHROMIUM_PID"

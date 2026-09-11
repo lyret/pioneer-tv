@@ -31,7 +31,7 @@ apt-get install -y --no-install-recommends \
   v4l-utils \
   bluez \
   python3 python3-evdev python3-aiohttp \
-  rsync git \
+  rsync git curl \
   fonts-noto-core
 # Raspberry Pi OS ships its own Chromium build (with Widevine support) as
 # chromium-browser; plain Debian calls it chromium.
@@ -50,7 +50,7 @@ mkdir -p "$TARGET" /etc/pioneer-tv "$HOME_DIR/.config"
 rsync -a --delete "$REPO/extension/" "$TARGET/extension/"
 rsync -a --delete "$REPO/daemon/" "$TARGET/daemon/"
 rsync -a "$REPO/system/" "$TARGET/system/"
-chmod +x "$TARGET/system/start-chromium.sh" "$TARGET/system/update.sh" "$TARGET/system/chromium-debug.sh"
+chmod +x "$TARGET/system/start-chromium.sh" "$TARGET/system/update.sh" "$TARGET/system/chromium-debug.sh" "$TARGET/system/open-launcher.sh"
 mkdir -p /var/lib/pioneer-tv
 [ -f /etc/pioneer-tv/config.toml ] || cp "$REPO/daemon/config.example.toml" /etc/pioneer-tv/config.toml
 [ -f /etc/pioneer-tv/chromium.env ] || cp "$REPO/system/chromium.env" /etc/pioneer-tv/chromium.env
