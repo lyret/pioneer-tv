@@ -11,6 +11,7 @@
   const clock = $('clock');
 
   let services = M.defaultServices;
+  let servicesKey = JSON.stringify(services);
 
   function render() {
     tilesEl.innerHTML = '';
@@ -93,8 +94,17 @@
   b.on('state', (s) => {
     $('pill-daemon').classList.toggle('on', s.daemonConnected);
     if (s.config && Array.isArray(s.config.services) && s.config.services.length) {
-      services = s.config.services;
-      render();
+      const key = JSON.stringify(s.config.services);
+      if (key !== servicesKey) {
+        // Re-render only when the list actually changed, and keep the focus
+        // where it was; state arrives with every status broadcast.
+        servicesKey = key;
+        services = s.config.services;
+        const focused = document.activeElement;
+        const idx = focused && focused.classList.contains('tile') ? [...tilesEl.children].indexOf(focused) : -1;
+        render();
+        if (idx >= 0) M.nav.focus(tilesEl.children[Math.min(idx, tilesEl.children.length - 1)], { scroll: false });
+      }
     }
   });
   b.on('gamepad', (e) => $('pill-gamepad').classList.toggle('on', !!e.connected));

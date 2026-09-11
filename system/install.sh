@@ -99,6 +99,8 @@ systemctl disable hciuart 2>/dev/null || true   # legacy; fails on Bookworm's ke
 rfkill unblock bluetooth 2>/dev/null || true
 systemctl enable zramswap 2>/dev/null || true
 systemctl enable pioneer-tv-daemon.service pioneer-tv-weston.service
+# Pick up new code if the box is already running (no-op on first install).
+systemctl try-restart pioneer-tv-daemon.service pioneer-tv-weston.service || true
 
 cat <<MSG
 

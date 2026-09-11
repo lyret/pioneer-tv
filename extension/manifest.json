@@ -35,19 +35,19 @@
   "commands": {
     "go-home": {
       "suggested_key": {
-        "default": "Ctrl+Alt+H"
+        "default": "Alt+Shift+H"
       },
       "description": "Go to the Pioneer TV launcher"
     },
     "toggle-keyboard": {
       "suggested_key": {
-        "default": "Ctrl+Alt+K"
+        "default": "Alt+Shift+K"
       },
       "description": "Toggle the on-screen keyboard"
     },
     "toggle-menu": {
       "suggested_key": {
-        "default": "Ctrl+Alt+M"
+        "default": "Alt+Shift+M"
       },
       "description": "Toggle the quick menu"
     }

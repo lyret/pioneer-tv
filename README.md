@@ -50,9 +50,9 @@ spatial navigation and the overlays, and these shortcuts work:
 
 | Shortcut | Action |
 | --- | --- |
-| Ctrl+Alt+H | Launcher (home) |
-| Ctrl+Alt+K | Toggle on-screen keyboard |
-| Ctrl+Alt+M | Toggle quick menu |
+| Alt+Shift+H | Launcher (home) |
+| Alt+Shift+K | Toggle on-screen keyboard |
+| Alt+Shift+M | Toggle quick menu |
 
 The launcher is at `chrome-extension://dpigdefepjjejbkidlabpjlnleidgjaf/launcher/index.html`
 (the ID is fixed by the key in the manifest).
