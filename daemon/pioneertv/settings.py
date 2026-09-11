@@ -37,6 +37,12 @@ SCHEMA: list[dict] = [
         ],
     },
     {
+        "id": "controls_bt", "title": "Bluetooth",
+        "fields": [
+            {"path": "bluetooth.auto_connect", "type": "bool", "label": "Ring upp parade handkontroller som inte ansluter själva"},
+        ],
+    },
+    {
         "id": "remote", "title": "Fjärråtkomst",
         "fields": [
             {"path": "remote.token", "type": "text", "label": "Åtkomstnyckel (tom = bara lokalt / Tailscale serve)", "secret": True},

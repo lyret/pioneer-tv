@@ -14,6 +14,10 @@ tv_address = 0
 tv_on_gamepad_connect = true   # PS/Xbox button wakes the TV and switches input
 monitor = true                 # follow TV standby and TV remote keys
 
+[bluetooth]
+auto_connect = true          # dial paired, trusted pads that are switched on but not connected
+reconnect_interval = 20      # seconds
+
 [gamepad]
 stick_deadzone = 0.45
 trigger_threshold = 0.5

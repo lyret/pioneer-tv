@@ -4,3 +4,4 @@ __pycache__/
 .venv/
 extension/launcher/logos/
 node_modules/
+.DS_Store

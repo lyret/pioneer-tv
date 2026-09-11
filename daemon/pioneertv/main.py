@@ -7,7 +7,7 @@ import logging
 import signal
 import time
 
-from . import __version__, config, settings, sysinfo, updater
+from . import __version__, bluetooth, config, settings, sysinfo, updater
 from .actions import Dispatcher
 from .cec import Cec
 from .gamepad import GamepadManager, MouseDriver
@@ -175,6 +175,7 @@ async def amain(cfg: dict) -> None:
         asyncio.create_task(mouse.run(), name="mouse"),
         asyncio.create_task(cec.monitor(on_remote), name="cec-monitor"),
         asyncio.create_task(status_loop(), name="status"),
+        asyncio.create_task(bluetooth.reconnect_loop(cfg), name="bt-reconnect"),
     ]
 
     stop = asyncio.Event()
