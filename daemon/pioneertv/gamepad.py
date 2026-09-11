@@ -55,7 +55,7 @@ QUIRKS = [
     ("Pro Controller", {"invert": ["ABS_Y", "ABS_RY"]}),
     ("Joy-Con", {"invert": ["ABS_Y", "ABS_RY"]}),
     ("Nintendo", {"invert": ["ABS_Y", "ABS_RY"]}),
-    ("Stratus XL", {"buttons": {
+    ("Stratus XL", {"invert": ["ABS_Y", "ABS_RZ"], "buttons": {
         "BTN_B": {"key": "KEY_ESC", "long": {"system": "menu"}},
         "BTN_C": {"key": "KEY_SPACE"},                                  # X
         "BTN_NORTH": {"system": "keyboard"},                            # Y
