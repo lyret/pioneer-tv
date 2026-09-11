@@ -236,7 +236,5 @@ that would still crash Weston on this board, so do not.
 
 ## Verify these against the live sites
 
-- Cineasterna's search URL in the service config is a guess. Search on the
-  site once and copy the URL pattern into `search_url`.
 - Plex Web's search route is `#!/search?query=` on current builds.
 - SVT Play's is `/sok?q=`.
