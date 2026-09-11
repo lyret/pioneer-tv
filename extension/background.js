@@ -202,13 +202,31 @@ async function boot() {
 // The kiosk start script opens about:blank: Chromium refuses chrome-extension://
 // URLs given on the command line. The extension takes the tab to the launcher
 // itself, on browser start and on (re)load of the unpacked extension.
+const isIdleUrl = (url) => !url || url === 'about:blank' || url === 'chrome://newtab/' || url.startsWith('chrome-error://');
+
 async function takeOver() {
-  const tabs = await chrome.tabs.query({});
-  const idle = tabs.find((t) => !t.url || t.url === 'about:blank' || t.url === 'chrome://newtab/' || t.url.startsWith('chrome-error://'));
-  if (idle) return chrome.tabs.update(idle.id, { url: LAUNCHER_URL, active: true });
-  if (tabs.length === 0) return chrome.tabs.create({ url: LAUNCHER_URL });
+  let tabs = [];
+  try { tabs = await chrome.tabs.query({}); } catch { return false; }
+  const idle = tabs.find((t) => isIdleUrl(t.url) && isIdleUrl(t.pendingUrl));
+  if (idle) { await chrome.tabs.update(idle.id, { url: LAUNCHER_URL, active: true }); return true; }
+  if (tabs.length === 0) { await chrome.tabs.create({ url: LAUNCHER_URL }); return true; }
+  return tabs.some((t) => (t.url || '').startsWith(LAUNCHER_URL)) || tabs.length > 0;
 }
 
-chrome.runtime.onStartup.addListener(async () => { await boot(); takeOver(); });
-chrome.runtime.onInstalled.addListener(async () => { await boot(); takeOver(); });
+// The window and its first tab may not exist yet when the worker wakes, so
+// keep trying for a while after start.
+function takeOverSoon() {
+  [0, 500, 1500, 3000, 6000, 10000].forEach((ms) => setTimeout(() => takeOver(), ms));
+}
+
+// A lone tab that settles on about:blank is the kiosk's start page: take it.
+chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
+  if (info.status !== 'complete' || !isIdleUrl(tab.url)) return;
+  const all = await chrome.tabs.query({});
+  if (all.length === 1) chrome.tabs.update(tabId, { url: LAUNCHER_URL, active: true });
+});
+
+chrome.runtime.onStartup.addListener(async () => { await boot(); takeOverSoon(); });
+chrome.runtime.onInstalled.addListener(async () => { await boot(); takeOverSoon(); });
 boot();
+takeOverSoon();
