@@ -12,9 +12,7 @@ body {
   background-image: var(--pioneertv-grain);
   background-size: 0.75rem 0.75rem;
   overflow: hidden;
-  cursor: none;
 }
-body:hover { cursor: default; }
 
 .page { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; padding: 2.4vh 5vw 2vh; }
 

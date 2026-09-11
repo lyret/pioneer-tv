@@ -25,6 +25,16 @@
   transition: none;
 }
 
+/* ---- software pointer (see cursor.js) ---- */
+.pioneertv-cursor {
+  position: fixed; left: 0; top: 0; z-index: 2147483647; pointer-events: none;
+  width: 24px; height: 36px; opacity: 0; transition: opacity 200ms;
+  filter: drop-shadow(2px 2px 0 rgba(43, 36, 25, 0.35));
+}
+.pioneertv-cursor-show { opacity: 1; }
+.pioneertv-cursor-press { transform-origin: 2px 2px; }
+.pioneertv-cursor-press svg { transform: scale(0.9); }
+
 /* ---- keyboard ---- */
 .pioneertv-keyboard {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 2147483000;

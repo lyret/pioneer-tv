@@ -16,6 +16,16 @@
       "matches": [
         "<all_urls>"
       ],
+      "css": [
+        "content/cursor.css"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
       "js": [
         "content/pixel-icons.js",
         "content/bridge.js",
@@ -23,6 +33,7 @@
         "content/keyboard.js",
         "content/hud.js",
         "content/logs.js",
+        "content/cursor.js",
         "content/main.js"
       ],
       "css": [

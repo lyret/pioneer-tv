@@ -208,6 +208,16 @@ itself, sees ordinary key presses. Buttons that mean something to the shell
 (home, menu, keyboard) go over the WebSocket as events. CEC is only ever
 touched by the daemon.
 
+## Known board quirk: no hardware cursor
+
+Weston 14 on the Pi 3's VideoCore IV aborts (an assertion in
+backend-drm/state-propose.c) the first time any client shows a mouse cursor,
+and none of Weston's switches avoid it. So the extension hides the system
+cursor on every page (`cursor.css`, injected at document start) and draws its
+own pointer (`cursor.js`) at the real pointer position. Hover and clicks stay
+native. Pages without content scripts (Chromium's own error pages) can still
+show a cursor, so keep the right stick still on those.
+
 ## Performance notes for the Pi 3 B+
 
 - 720p output is deliberate: players cap stream quality to the window size,

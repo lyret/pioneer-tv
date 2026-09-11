@@ -1,0 +1,5 @@
+/* Pioneer TV: no system cursor anywhere. Weston 14 on the Pi 3's VideoCore IV
+   aborts the first time a client cursor lands on the hardware cursor plane
+   (backend-drm/state-propose.c assertion), so no client may ever set one.
+   The pointer still exists; cursor.js draws it. Injected at document_start. */
+*, *::before, *::after { cursor: none !important; }

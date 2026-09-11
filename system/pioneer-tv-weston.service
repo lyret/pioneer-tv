@@ -22,10 +22,6 @@ UtmpMode=user
 Environment=XDG_SESSION_TYPE=wayland
 Environment=XDG_RUNTIME_DIR=/run/user/1000
 Environment=HOME=/home/pi
-# Weston 14's atomic DRM path aborts on VideoCore IV the first time a mouse
-# cursor is placed on the hardware cursor plane (state-propose.c assertion).
-# The legacy path is fine and costs nothing here.
-Environment=WESTON_DISABLE_ATOMIC=1
 ExecStart=/usr/bin/weston --config=/home/pi/.config/weston.ini
 Restart=always
 RestartSec=2
