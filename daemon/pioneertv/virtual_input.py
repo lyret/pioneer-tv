@@ -37,6 +37,8 @@ class VirtualInput:
             raise ValueError(f"unknown key/button name {name!r}") from exc
 
     def key(self, name: str, down: bool, modifiers: list[str] | None = None) -> None:
+        if self.keyboard.fd < 0:
+            return  # already closed (shutdown)
         code = self.code(name)
         mods = [self.code(m) for m in (modifiers or [])]
         if down:
@@ -56,6 +58,8 @@ class VirtualInput:
         self.key(name, False, modifiers)
 
     def mouse_button(self, name: str, down: bool) -> None:
+        if self.mouse.fd < 0:
+            return
         self.mouse.write(e.EV_KEY, self.code(name), 1 if down else 0)
         self.mouse.syn()
 
