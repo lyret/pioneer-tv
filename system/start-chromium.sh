@@ -10,12 +10,13 @@
 # chromium.env as PIONEER_TV_CHROMIUM_FLAGS.
 set -u
 
+# Site overrides first, so they take effect below.
+[ -f /etc/pioneer-tv/chromium.env ] && . /etc/pioneer-tv/chromium.env
 PIONEER_TV_DIR=${PIONEER_TV_DIR:-/opt/pioneer-tv}
 EXT_ID=dpigdefepjjejbkidlabpjlnleidgjaf
 PROFILE=${PIONEER_TV_PROFILE:-$HOME/.pioneer-tv/chromium}
 CACHE=${PIONEER_TV_CACHE:-/dev/shm/pioneer-tv-cache}   # RAM: the SD card must never be in the playback path
 EXTRA_FLAGS=${PIONEER_TV_CHROMIUM_FLAGS:-}
-[ -f /etc/pioneer-tv/chromium.env ] && . /etc/pioneer-tv/chromium.env
 
 LOG=${PIONEER_TV_CHROMIUM_LOG:-$HOME/.pioneer-tv/chromium.log}
 mkdir -p "$PROFILE" "$CACHE" "$(dirname "$LOG")"
@@ -28,7 +29,7 @@ for f in "$PROFILE/Default/Preferences"; do
 done
 
 BIN=$(command -v chromium-browser || command -v chromium)
-echo "pioneer-tv: $($BIN --version 2>/dev/null), extension $PIONEER_TV_DIR/extension ($(grep -o '"version": "[^"]*"' "$PIONEER_TV_DIR/extension/manifest.json"))"
+echo "pioneer-tv: $($BIN --version 2>/dev/null), extension $PIONEER_TV_DIR/extension ($(grep -o '"version": "[^"]*"' "$PIONEER_TV_DIR/extension/manifest.json")), extra flags: ${EXTRA_FLAGS:-none}"
 
 exec "$BIN" \
   --ozone-platform=wayland \
