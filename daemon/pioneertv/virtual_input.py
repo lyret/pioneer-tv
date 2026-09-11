@@ -42,6 +42,11 @@ class VirtualInput:
         if self.keyboard.fd < 0:
             return  # already closed (shutdown)
         code = self.code(name)
+        try:
+            from .gamepad import _trace
+            _trace("→ tangentbord", "out", name, 1 if down else 0, None)
+        except Exception:
+            pass
         mods = [self.code(m) for m in (modifiers or [])]
         if down:
             for m in mods:
