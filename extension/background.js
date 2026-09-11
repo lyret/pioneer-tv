@@ -28,6 +28,7 @@ function connect() {
   socket.onopen = () => {
     daemonConnected = true;
     send({ type: 'hello', client: 'extension', version: chrome.runtime.getManifest().version });
+    while (pendingDebug.length) send(pendingDebug.shift());
     broadcastState();
     clearInterval(pingTimer);
     pingTimer = setInterval(() => send({ type: 'ping' }), PING_MS);
@@ -46,8 +47,10 @@ function connect() {
   socket.onerror = () => { /* onclose follows */ };
 }
 
+const pendingDebug = [];
 function send(msg) {
   if (socket && socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(msg));
+  else if (msg.type === 'debug' && pendingDebug.length < 50) pendingDebug.push(msg);
 }
 
 async function handleDaemonMessage(msg) {
@@ -210,30 +213,31 @@ function debug(text) {
   send({ type: 'debug', text });
 }
 
+// Only a tab that actually reports the launcher URL counts. A navigation we
+// issue can be overridden by Chromium's own startup loading about:blank into
+// the same tab a moment later, which is what happens on a slow Pi.
 let tookOver = false;
 async function takeOver(reason) {
   if (tookOver) return true;
   let tabs = [];
   try { tabs = await chrome.tabs.query({}); } catch (e) { debug(`takeover (${reason}): tabs.query failed: ${e.message}`); return false; }
   const summary = tabs.map((t) => `${t.id}:${t.url || t.pendingUrl || '?'}`).join(' ') || 'no tabs';
-  if (tabs.some((t) => (t.url || '').startsWith(LAUNCHER_URL))) { tookOver = true; debug(`takeover (${reason}): already on launcher [${summary}]`); return true; }
+  if (tabs.some((t) => (t.url || '').startsWith(LAUNCHER_URL))) { tookOver = true; debug(`takeover (${reason}): on launcher [${summary}]`); return true; }
   const idle = tabs.find((t) => isIdleUrl(t.url) && isIdleUrl(t.pendingUrl));
   try {
-    if (idle) { await chrome.tabs.update(idle.id, { url: LAUNCHER_URL, active: true }); tookOver = true; debug(`takeover (${reason}): navigated tab ${idle.id} [${summary}]`); return true; }
-    if (tabs.length === 0) { await chrome.tabs.create({ url: LAUNCHER_URL }); tookOver = true; debug(`takeover (${reason}): created tab`); return true; }
+    if (idle) { await chrome.tabs.update(idle.id, { url: LAUNCHER_URL, active: true }); debug(`takeover (${reason}): navigating tab ${idle.id} [${summary}]`); }
+    else if (tabs.length === 0) { await chrome.tabs.create({ url: LAUNCHER_URL }); debug(`takeover (${reason}): created tab`); }
+    else debug(`takeover (${reason}): nothing idle [${summary}]`);
   } catch (e) {
     debug(`takeover (${reason}): failed: ${e.message} [${summary}]`);
-    return false;
   }
-  debug(`takeover (${reason}): nothing idle [${summary}]`);
-  return false;
+  return false; // verified on the next tick
 }
 
-// The window and its first tab may not exist yet when the worker wakes, and a
-// Pi 3 takes a while to get there, so keep trying for a minute.
+// Keep at it until a tab really is on the launcher; a Pi 3 needs a while.
 function takeOverSoon(reason) {
   let n = 0;
-  const tick = () => { if (!tookOver && n++ < 30) takeOver(`${reason} #${n}`).then((ok) => { if (!ok) setTimeout(tick, 2000); }); };
+  const tick = () => { if (!tookOver && n++ < 45) takeOver(`${reason} #${n}`).then((ok) => { if (!ok) setTimeout(tick, 1500); }); };
   tick();
 }
 
