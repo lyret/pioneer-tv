@@ -32,8 +32,8 @@ BIN=${PIONEER_TV_CHROMIUM_BIN:-$(command -v chromium-browser || command -v chrom
 DEVTOOLS_PORT=${PIONEER_TV_DEVTOOLS_PORT:-9222}   # 127.0.0.1 only; used to open the launcher
 echo "pioneer-tv: $($BIN --version 2>/dev/null), extension $PIONEER_TV_DIR/extension ($(grep -o '"version": "[^"]*"' "$PIONEER_TV_DIR/extension/manifest.json")), extra flags: ${EXTRA_FLAGS:-none}"
 
-# Open the launcher through the DevTools port once Chromium is up (see open-launcher.sh).
-"$PIONEER_TV_DIR/system/open-launcher.sh" "$DEVTOOLS_PORT" "$EXT_ID" 120 &
+# Open the launcher through the DevTools port once Chromium is up (see open-launcher.py).
+python3 "$PIONEER_TV_DIR/system/open-launcher.py" "$DEVTOOLS_PORT" "$EXT_ID" 120 &
 
 "$BIN" \
   --remote-debugging-port="$DEVTOOLS_PORT" \
