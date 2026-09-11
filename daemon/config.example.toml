@@ -23,7 +23,13 @@ repeat_ms = 220
 # Button → action. Actions: {key=, modifiers=[]}, {mouse_button=}, {cec=}, {system=}.
 # cec: volume_up, volume_down, mute, tv_on, tv_off, tv_toggle, active_source
 # system: home, menu, keyboard, status, escape, reload, back
+# invert_axes = ["ABS_Y", "ABS_RY"]   # Nintendo pads are inverted automatically
+
 [gamepad.buttons]
+BTN_DPAD_UP    = { key = "KEY_UP" }      # pads whose d-pad is buttons, not a hat
+BTN_DPAD_DOWN  = { key = "KEY_DOWN" }
+BTN_DPAD_LEFT  = { key = "KEY_LEFT" }
+BTN_DPAD_RIGHT = { key = "KEY_RIGHT" }
 BTN_SOUTH  = { key = "KEY_ENTER" }
 BTN_EAST   = { key = "KEY_ESC" }
 BTN_WEST   = { key = "KEY_SPACE" }

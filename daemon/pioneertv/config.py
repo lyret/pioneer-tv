@@ -43,7 +43,13 @@ DEFAULTS: dict[str, Any] = {
         "long_press_ms": 800,
         "repeat_ms": 220,            # for actions marked repeat = true
         "unipolar_axes": ["ABS_Z", "ABS_RZ", "ABS_BRAKE", "ABS_GAS", "ABS_THROTTLE"],
+        "invert_axes": [],           # e.g. ["ABS_Y", "ABS_RY"]; Nintendo pads get this automatically
         "buttons": {
+            # Pads whose d-pad is buttons rather than a hat (Nintendo, some 8BitDo modes).
+            "BTN_DPAD_UP": {"key": "KEY_UP"},
+            "BTN_DPAD_DOWN": {"key": "KEY_DOWN"},
+            "BTN_DPAD_LEFT": {"key": "KEY_LEFT"},
+            "BTN_DPAD_RIGHT": {"key": "KEY_RIGHT"},
             "BTN_SOUTH": {"key": "KEY_ENTER"},
             "BTN_EAST": {"key": "KEY_ESC"},
             "BTN_WEST": {"key": "KEY_SPACE"},

@@ -16,6 +16,14 @@ from .actions import Dispatcher
 
 log = logging.getLogger("pioneertv.gamepad")
 
+# Per-device quirks by name substring. The Nintendo driver reports stick Y
+# with up as positive, the opposite of every other pad.
+QUIRKS = [
+    ("Pro Controller", {"invert": ["ABS_Y", "ABS_RY"]}),
+    ("Joy-Con", {"invert": ["ABS_Y", "ABS_RY"]}),
+    ("Nintendo", {"invert": ["ABS_Y", "ABS_RY"]}),
+]
+
 
 class Gamepad:
     def __init__(self, dev: evdev.InputDevice, cfg: dict, dispatcher: Dispatcher, mouse) -> None:
@@ -35,6 +43,13 @@ class Gamepad:
                 self.axes[code] = spec
         self.absinfo = {code: info for code, info in dev.capabilities().get(e.EV_ABS, [])}
         self.unipolar = {getattr(e, n) for n in self.cfg["unipolar_axes"] if hasattr(e, n)}
+        invert = list(self.cfg.get("invert_axes") or [])
+        for needle, quirk in QUIRKS:
+            if needle.lower() in dev.name.lower():
+                invert += quirk.get("invert", [])
+        self.invert = {getattr(e, n) for n in invert if hasattr(e, n)}
+        if self.invert:
+            log.info("%s: inverting %s", dev.name, ", ".join(sorted(invert)))
         self.axis_state: dict[int, int] = {}  # -1, 0, +1 per digital-ised axis
 
     def normalize(self, code: int, value: int) -> float:
@@ -43,7 +58,8 @@ class Gamepad:
             return float(value)
         if code in self.unipolar and info.min >= 0:
             return (value - info.min) / (info.max - info.min)
-        return (value - info.min) / (info.max - info.min) * 2.0 - 1.0
+        v = (value - info.min) / (info.max - info.min) * 2.0 - 1.0
+        return -v if code in self.invert else v
 
     async def run(self) -> None:
         log.info("reading %s (%s)", self.dev.name, self.dev.path)

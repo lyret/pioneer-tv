@@ -162,6 +162,8 @@ bluetoothctl
 
 A pad that was paired but does not reconnect on its own was not trusted:
 `bluetoothctl trust <MAC>`. Pairing from the settings page does this for you.
+A Switch Pro Controller reconnects when you press its Home button; it does
+not wake on any button like a PlayStation pad.
 
 If `bluetoothctl` says "No default controller available", the kernel did not
 bring up the onboard chip. On Bookworm the kernel attaches it itself (the old
