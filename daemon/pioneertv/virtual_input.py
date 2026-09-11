@@ -17,17 +17,19 @@ KEYBOARD_KEYS = [
 
 
 class VirtualInput:
-    def __init__(self) -> None:
+    def __init__(self, with_mouse: bool = True) -> None:
         self.keyboard = UInput({e.EV_KEY: KEYBOARD_KEYS}, name="Pioneer TV Virtual Keyboard")
-        self.mouse = UInput(
-            {
-                e.EV_KEY: [e.BTN_LEFT, e.BTN_RIGHT, e.BTN_MIDDLE],
-                e.EV_REL: [e.REL_X, e.REL_Y, e.REL_WHEEL],
-            },
-            name="Pioneer TV Virtual Mouse",
-        )
+        self.mouse = None
+        if with_mouse:
+            self.mouse = UInput(
+                {
+                    e.EV_KEY: [e.BTN_LEFT, e.BTN_RIGHT, e.BTN_MIDDLE],
+                    e.EV_REL: [e.REL_X, e.REL_Y, e.REL_WHEEL],
+                },
+                name="Pioneer TV Virtual Mouse",
+            )
         self._held: set[int] = set()
-        log.info("virtual keyboard and mouse created")
+        log.info("virtual keyboard%s created", " and mouse" if with_mouse else "")
 
     @staticmethod
     def code(name: str) -> int:
@@ -58,12 +60,14 @@ class VirtualInput:
         self.key(name, False, modifiers)
 
     def mouse_button(self, name: str, down: bool) -> None:
-        if self.mouse.fd < 0:
+        if self.mouse is None or self.mouse.fd < 0:
             return
         self.mouse.write(e.EV_KEY, self.code(name), 1 if down else 0)
         self.mouse.syn()
 
     def mouse_move(self, dx: int, dy: int) -> None:
+        if self.mouse is None:
+            return
         if dx:
             self.mouse.write(e.EV_REL, e.REL_X, dx)
         if dy:
@@ -80,4 +84,5 @@ class VirtualInput:
     def close(self) -> None:
         self.release_all()
         self.keyboard.close()
-        self.mouse.close()
+        if self.mouse is not None:
+            self.mouse.close()

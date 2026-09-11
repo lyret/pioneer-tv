@@ -153,6 +153,11 @@ window.PioneerTV = window.PioneerTV || {};
         return;
       }
       if (e.key === 'Enter') {
+        if (M.cursor && M.cursor.active() && !this.isTextField(active)) {
+          e.preventDefault(); e.stopImmediatePropagation();
+          M.cursor.click();
+          return;
+        }
         if (this.isTextField(active)) {
           if (M.bridge && M.bridge.autoKeyboard() && M.keyboard && !M.keyboard.isOpen()) {
             e.preventDefault(); e.stopImmediatePropagation();

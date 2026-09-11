@@ -70,7 +70,10 @@ class Dispatcher:
             self._key_down_at[id(action)] = time.monotonic()
             self.vinput.key(action["key"], True, action.get("modifiers"))
         elif "mouse_button" in action:
-            self.vinput.mouse_button(action["mouse_button"], True)
+            if self.cfg["mouse"].get("mode", "virtual") == "virtual":
+                await self.emit({"type": "event", "name": "pointer_button", "button": action["mouse_button"].replace("BTN_", "").lower(), "down": True})
+            else:
+                self.vinput.mouse_button(action["mouse_button"], True)
         elif "cec" in action or "system" in action:
             await self._run_once(action)
             if action.get("repeat"):
@@ -85,7 +88,10 @@ class Dispatcher:
                 await asyncio.sleep(MIN_KEY_HOLD - held)
             self.vinput.key(action["key"], False, action.get("modifiers"))
         elif "mouse_button" in action:
-            self.vinput.mouse_button(action["mouse_button"], False)
+            if self.cfg["mouse"].get("mode", "virtual") == "virtual":
+                await self.emit({"type": "event", "name": "pointer_button", "button": action["mouse_button"].replace("BTN_", "").lower(), "down": False})
+            else:
+                self.vinput.mouse_button(action["mouse_button"], False)
         if task := self._repeat_tasks.pop(id(action), None):
             task.cancel()
 

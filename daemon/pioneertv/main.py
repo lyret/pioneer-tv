@@ -26,10 +26,10 @@ async def amain(cfg: dict) -> None:
     async def emit(msg: dict) -> None:
         await server.broadcast(msg)
 
-    vinput = VirtualInput()
+    vinput = VirtualInput(with_mouse=cfg["mouse"].get("mode", "virtual") == "uinput")
     cec = Cec(cfg, emit)
     dispatcher = Dispatcher(cfg, vinput, cec, emit)
-    mouse = MouseDriver(cfg, vinput)
+    mouse = MouseDriver(cfg, vinput, emit)
 
     async def toast(text: str, icon: str = "info") -> None:
         await emit({"type": "event", "name": "toast", "text": text, "icon": icon})

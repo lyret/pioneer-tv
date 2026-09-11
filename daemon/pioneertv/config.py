@@ -75,7 +75,9 @@ DEFAULTS: dict[str, Any] = {
             "ABS_RZ": {"positive": {"cec": "volume_up", "repeat": True}},
         },
     },
-    "mouse": {"deadzone": 0.15, "max_speed": 1100.0, "curve": 2.0, "hz": 60},
+    # mode "virtual": the extension draws and drives the pointer (no Wayland pointer, see README).
+    # mode "uinput": a real virtual mouse device; crashes Weston on the Pi 3.
+    "mouse": {"mode": "virtual", "deadzone": 0.15, "max_speed": 1100.0, "curve": 2.0, "hz": 30},
     "ui": {"auto_keyboard": True},
     "chromium": {"log_file": "/home/pi/.pioneer-tv/chromium.log"},
     "remote": {"token": ""},

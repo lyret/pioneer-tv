@@ -186,11 +186,13 @@ class Gamepad:
 
 
 class MouseDriver:
-    """Turns a stick position into relative pointer motion at a fixed rate."""
+    """Turns a stick position into pointer motion at a fixed rate: either
+    real uinput events or, in virtual mode, pointer events for the extension."""
 
-    def __init__(self, cfg: dict, vinput) -> None:
+    def __init__(self, cfg: dict, vinput, emit=None) -> None:
         self.cfg = cfg["mouse"]
         self.vinput = vinput
+        self.emit = emit
         self.x = 0.0
         self.y = 0.0
         self._rx = 0.0
@@ -225,7 +227,11 @@ class MouseDriver:
             dx, dy = int(self._rx), int(self._ry)
             self._rx -= dx
             self._ry -= dy
-            self.vinput.mouse_move(dx, dy)
+            if self.cfg.get("mode", "virtual") == "virtual":
+                if self.emit and (dx or dy):
+                    await self.emit({"type": "event", "name": "pointer", "dx": dx, "dy": dy})
+            else:
+                self.vinput.mouse_move(dx, dy)
 
 
 def is_gamepad(dev: evdev.InputDevice) -> bool:

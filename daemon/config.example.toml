@@ -61,10 +61,11 @@ ABS_Z     = { positive = { cec = "volume_down", repeat = true } }
 ABS_RZ    = { positive = { cec = "volume_up",   repeat = true } }
 
 [mouse]
+mode = "virtual"     # the extension draws and drives the pointer; "uinput" crashes Weston on the Pi 3
 deadzone = 0.15
 max_speed = 1100.0   # pixels per second at full deflection
 curve = 2.0
-hz = 60
+hz = 30
 
 # Services shown by the launcher. {query} is replaced by the search text.
 [[services]]

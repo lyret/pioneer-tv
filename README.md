@@ -212,11 +212,13 @@ touched by the daemon.
 
 Weston 14 on the Pi 3's VideoCore IV aborts (an assertion in
 backend-drm/state-propose.c) the first time any client shows a mouse cursor,
-and none of Weston's switches avoid it. So the extension hides the system
-cursor on every page (`cursor.css`, injected at document start) and draws its
-own pointer (`cursor.js`) at the real pointer position. Hover and clicks stay
-native. Pages without content scripts (Chromium's own error pages) can still
-show a cursor, so keep the right stick still on those.
+and none of Weston's switches avoid it. So the box has no pointer device at
+all: the daemon streams right-stick motion to the extension, which draws its
+own pointer (`cursor.js`), delivers hover and clicks to what is under it, and
+scrolls when pushed against the top or bottom edge. A clicks at the pointer
+for a few seconds after it last moved, and is the normal "select" otherwise.
+`cursor.css` also hides any system cursor in case a real mouse is plugged in;
+that would still crash Weston on this board, so do not.
 
 ## Performance notes for the Pi 3 B+
 

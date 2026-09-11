@@ -32,8 +32,8 @@
   filter: drop-shadow(2px 2px 0 rgba(43, 36, 25, 0.35));
 }
 .pioneertv-cursor-show { opacity: 1; }
-.pioneertv-cursor-press { transform-origin: 2px 2px; }
-.pioneertv-cursor-press svg { transform: scale(0.9); }
+.pioneertv-cursor-press svg { transform: translate(1px, 1px); }
+.pioneertv-hover { }
 
 /* ---- keyboard ---- */
 .pioneertv-keyboard {
