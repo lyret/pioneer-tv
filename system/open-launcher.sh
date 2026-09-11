@@ -32,7 +32,8 @@ for attempt in 1 2 3 4 5 6; do
   sleep 3
 done
 
-# 3. Close blank tabs left behind so the launcher is the only page.
+# 3. Close blank tabs left behind, then activate the launcher so it has
+#    keyboard focus (a tab opened via DevTools starts unfocused).
 python3 - "$BASE" "$URL" <<'PY'
 import json, sys, urllib.request
 base, url = sys.argv[1], sys.argv[2]
@@ -49,5 +50,13 @@ for p in pages:
             print("open-launcher: closed", u or "(empty)")
         except Exception as exc:
             print("open-launcher: close failed:", exc)
+for p in pages:
+    if p.get("url", "").startswith(url):
+        try:
+            urllib.request.urlopen(base + "/json/activate/" + p["id"], timeout=5).read()
+            print("open-launcher: activated launcher tab")
+        except Exception as exc:
+            print("open-launcher: activate failed:", exc)
+        break
 print("open-launcher:", "done" if have_launcher else "launcher not open")
 PY

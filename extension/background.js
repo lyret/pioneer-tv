@@ -222,7 +222,14 @@ async function takeOver(reason) {
   let tabs = [];
   try { tabs = await chrome.tabs.query({}); } catch (e) { debug(`takeover (${reason}): tabs.query failed: ${e.message}`); return false; }
   const summary = tabs.map((t) => `${t.id}:${t.url || t.pendingUrl || '?'}`).join(' ') || 'no tabs';
-  if (tabs.some((t) => (t.url || '').startsWith(LAUNCHER_URL))) { tookOver = true; debug(`takeover (${reason}): on launcher [${summary}]`); return true; }
+  const onLauncher = tabs.find((t) => (t.url || '').startsWith(LAUNCHER_URL));
+  if (onLauncher) {
+    tookOver = true;
+    debug(`takeover (${reason}): on launcher [${summary}]`);
+    // Make sure it actually has keyboard focus.
+    try { await chrome.tabs.update(onLauncher.id, { active: true }); await chrome.windows.update(onLauncher.windowId, { focused: true }); } catch {}
+    return true;
+  }
   const idle = tabs.find((t) => isIdleUrl(t.url) && isIdleUrl(t.pendingUrl));
   try {
     if (idle) { await chrome.tabs.update(idle.id, { url: LAUNCHER_URL, active: true }); debug(`takeover (${reason}): navigating tab ${idle.id} [${summary}]`); }
