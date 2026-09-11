@@ -59,8 +59,8 @@ QUIRKS = [
         "BTN_B": {"key": "KEY_ESC", "long": {"system": "menu"}},
         "BTN_C": {"key": "KEY_SPACE"},                                  # X
         "BTN_NORTH": {"system": "keyboard"},                            # Y
-        "BTN_WEST": {"key": "KEY_LEFT", "modifiers": ["KEY_LEFTALT"]},  # L1: browser back
-        "BTN_Z": {"key": "KEY_RIGHT", "modifiers": ["KEY_LEFTALT"]},    # R1: browser forward
+        "BTN_WEST": {"key": "KEY_TAB", "modifiers": ["KEY_LEFTSHIFT"]}, # L1: previous focusable
+        "BTN_Z": {"key": "KEY_TAB"},                                    # R1: next focusable
         "BTN_TL": {"cec": "volume_down", "repeat": True},               # L2
         "BTN_TR": {"cec": "volume_up", "repeat": True},                 # R2
         "KEY_HOMEPAGE": {"system": "home"},   # pause: only reports after a long hold

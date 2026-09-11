@@ -54,8 +54,8 @@ DEFAULTS: dict[str, Any] = {
             "BTN_EAST": {"key": "KEY_ESC"},
             "BTN_WEST": {"key": "KEY_SPACE"},
             "BTN_NORTH": {"system": "keyboard"},
-            "BTN_TL": {"key": "KEY_LEFT", "modifiers": ["KEY_LEFTALT"]},   # browser back
-            "BTN_TR": {"key": "KEY_RIGHT", "modifiers": ["KEY_LEFTALT"]},  # browser forward
+            "BTN_TL": {"key": "KEY_TAB", "modifiers": ["KEY_LEFTSHIFT"]},  # previous focusable
+            "BTN_TR": {"key": "KEY_TAB"},                                  # next focusable
             "BTN_TL2": {"cec": "volume_down", "repeat": True},
             "BTN_TR2": {"cec": "volume_up", "repeat": True},
             "BTN_SELECT": {"system": "status", "long": {"cec": "tv_toggle"}},

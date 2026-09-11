@@ -124,7 +124,7 @@ branch you want to follow.
 | B / Circle | Back (Escape) |
 | X / Square | Play, pause (Space) |
 | Y / Triangle | On-screen keyboard |
-| L1, R1 | Browser back, forward |
+| L1, R1 | Shift+Tab, Tab (previous, next focusable) |
 | L2, R2 | TV volume down, up (CEC, repeats while held) |
 | Right stick | Mouse pointer; click on the stick to left-click |
 | Start | Quick menu |

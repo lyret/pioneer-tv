@@ -40,8 +40,8 @@ BTN_SOUTH  = { key = "KEY_ENTER" }
 BTN_EAST   = { key = "KEY_ESC" }
 BTN_WEST   = { key = "KEY_SPACE" }
 BTN_NORTH  = { system = "keyboard" }
-BTN_TL     = { key = "KEY_LEFT",  modifiers = ["KEY_LEFTALT"] }
-BTN_TR     = { key = "KEY_RIGHT", modifiers = ["KEY_LEFTALT"] }
+BTN_TL     = { key = "KEY_TAB", modifiers = ["KEY_LEFTSHIFT"] }   # previous focusable
+BTN_TR     = { key = "KEY_TAB" }                                   # next focusable
 BTN_TL2    = { cec = "volume_down", repeat = true }
 BTN_TR2    = { cec = "volume_up",   repeat = true }
 BTN_SELECT = { system = "status", long = { cec = "tv_toggle" } }
