@@ -19,6 +19,7 @@ for f in "$PROFILE/Default/Preferences"; do
 done
 
 BIN=$(command -v chromium-browser || command -v chromium)
+echo "pioneer-tv: $($BIN --version 2>/dev/null), extension $PIONEER_TV_DIR/extension ($(grep -o '"version": "[^"]*"' "$PIONEER_TV_DIR/extension/manifest.json"))"
 
 exec "$BIN" \
   --ozone-platform=wayland \
@@ -33,7 +34,7 @@ exec "$BIN" \
   --noerrdialogs \
   --disable-infobars \
   --disable-session-crashed-bubble \
-  --disable-features=TranslateUI,MediaRouter \
+  --disable-features=TranslateUI,MediaRouter,DisableLoadExtensionCommandLineSwitch \
   --autoplay-policy=no-user-gesture-required \
   --enable-accelerated-video-decode \
   --ignore-gpu-blocklist \
