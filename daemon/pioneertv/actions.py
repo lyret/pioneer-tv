@@ -13,6 +13,7 @@ from typing import Any, Callable, Coroutine
 log = logging.getLogger("pioneertv.actions")
 
 Action = dict[str, Any]
+MIN_KEY_HOLD = 0.06  # seconds
 
 
 class Dispatcher:
@@ -27,6 +28,7 @@ class Dispatcher:
         self._pressed_at: dict[int, float] = {}
         self._long_fired: set[int] = set()
         self._long_tasks: dict[int, asyncio.Task] = {}
+        self._key_down_at: dict[int, float] = {}
 
     # ------------------------------------------------------------ public
     async def press(self, action: Action) -> None:
@@ -65,6 +67,7 @@ class Dispatcher:
 
     async def _begin(self, action: Action) -> None:
         if "key" in action:
+            self._key_down_at[id(action)] = time.monotonic()
             self.vinput.key(action["key"], True, action.get("modifiers"))
         elif "mouse_button" in action:
             self.vinput.mouse_button(action["mouse_button"], True)
@@ -75,6 +78,11 @@ class Dispatcher:
 
     async def _end(self, action: Action) -> None:
         if "key" in action:
+            # A d-pad tap can report press and release in the same instant;
+            # hold the virtual key long enough for the compositor and browser.
+            held = time.monotonic() - self._key_down_at.pop(id(action), 0)
+            if held < MIN_KEY_HOLD:
+                await asyncio.sleep(MIN_KEY_HOLD - held)
             self.vinput.key(action["key"], False, action.get("modifiers"))
         elif "mouse_button" in action:
             self.vinput.mouse_button(action["mouse_button"], False)
