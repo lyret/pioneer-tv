@@ -162,6 +162,9 @@ bluetoothctl
 
 A pad that was paired but does not reconnect on its own was not trusted:
 `bluetoothctl trust <MAC>`. Pairing from the settings page does this for you.
+If the onboard radio is dead and you use a USB adapter, put
+`dtoverlay=disable-bt` in config.txt: with two adapters, one of them silent,
+pads connect and drop within a second.
 A Switch Pro Controller reconnects when you press its Home button; it does
 not wake on any button like a PlayStation pad.
 

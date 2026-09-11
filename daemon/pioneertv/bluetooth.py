@@ -1,9 +1,10 @@
 """Keep trusted gamepads connected.
 
-Many pads (SteelSeries, some 8BitDo modes) do not dial the host when switched
-on, and BlueZ only re-dials after link loss. So the daemon dials: every few
-seconds it connects any paired, trusted HID device that is not connected. A
-pad that is switched off simply fails the attempt.
+Off by default: SteelSeries, Nintendo and 8BitDo pads all dial the host when
+switched on, and a host that keeps paging them collides with that dial (seen
+on a Stratus XL: connect, then drop within the same second). Enable only for
+a pad that never dials in; then the daemon pages paired, trusted HID devices
+that are not connected, once per interval.
 """
 from __future__ import annotations
 
@@ -37,7 +38,7 @@ async def reconnect_loop(cfg: dict, on_change=None) -> None:
     bt = cfg.get("bluetooth") or {}
     interval = float(bt.get("reconnect_interval", 20))
     if not bt.get("auto_connect", True):
-        log.info("auto-connect disabled")
+        log.info("auto-connect dialing off (pads dial in themselves)")
         return
     await asyncio.sleep(5)
     while True:

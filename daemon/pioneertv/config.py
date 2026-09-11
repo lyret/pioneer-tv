@@ -79,7 +79,7 @@ DEFAULTS: dict[str, Any] = {
     "ui": {"auto_keyboard": True},
     "chromium": {"log_file": "/home/pi/.pioneer-tv/chromium.log"},
     "remote": {"token": ""},
-    "bluetooth": {"auto_connect": True, "reconnect_interval": 20},
+    "bluetooth": {"auto_connect": False, "reconnect_interval": 60},
     "services": [],
 }
 
