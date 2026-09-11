@@ -2,6 +2,12 @@
 # Launches Chromium in kiosk mode with the Pioneer TV extension.
 # Started by Weston's autolaunch (see weston.ini). Edit /etc/pioneer-tv/chromium.env
 # to add flags or change the profile location.
+#
+# GPU note: the Pi 3's VideoCore IV only offers OpenGL ES 2.0 and Chromium's
+# compositor wants ES 3.0, so Chromium must be allowed to fall back to software
+# drawing on its own. Never add --ignore-gpu-blocklist here on a Pi 3; the
+# result is a grey screen that never paints. On a Pi 4/5 it can go in
+# chromium.env as PIONEER_TV_CHROMIUM_FLAGS.
 set -u
 
 PIONEER_TV_DIR=${PIONEER_TV_DIR:-/opt/pioneer-tv}
@@ -40,8 +46,6 @@ exec "$BIN" \
   --disable-features=TranslateUI,MediaRouter,DisableLoadExtensionCommandLineSwitch \
   --autoplay-policy=no-user-gesture-required \
   --enable-accelerated-video-decode \
-  --ignore-gpu-blocklist \
-  --enable-gpu-rasterization \
   --password-store=basic \
   --check-for-update-interval=31536000 \
   --lang=sv-SE \
